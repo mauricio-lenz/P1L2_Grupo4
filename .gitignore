@@ -1,0 +1,31 @@
+# Unity
+/[L|l]ibrary/
+/[T|t]emp/
+/[O|o]bj/
+/[B|b]uild/
+/[B|b]uilds/
+/[L|l]ogs/
+/[U|u]ser[S|s]ettings/
+/[M|m]emoryCaptures/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+
+
+# Python & Entornos
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+*.json
+!data/model_data.json # Mantener el archivo JSON de ejemplo/oficial
+
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
