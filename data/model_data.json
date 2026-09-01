@@ -1,0 +1,2010 @@
+{
+  "schema_version": "0.1.0",
+  "metadata": {
+    "title": "Stub edificio 2x2 para desarrollo y pruebas",
+    "units": {
+      "length": "m",
+      "force": "kN",
+      "pressure": "kPa"
+    },
+    "elevation_axis": "Z",
+    "source_plans": []
+  },
+  "materials": [
+    {
+      "id": "C25",
+      "name": "Hormigon C25",
+      "type": "concrete",
+      "gamma": 25.0,
+      "E": 25000000.0,
+      "fc": 25000.0
+    },
+    {
+      "id": "A630",
+      "name": "Acero A630-420H",
+      "type": "steel",
+      "gamma": 78.5,
+      "E": 200000000.0,
+      "fy": 630000.0
+    }
+  ],
+  "sections": [
+    {
+      "id": "C40x40",
+      "shape": "rect",
+      "b": 0.4,
+      "h": 0.4,
+      "material": "C25",
+      "kinds": [
+        "column"
+      ]
+    },
+    {
+      "id": "V30x50",
+      "shape": "rect",
+      "b": 0.3,
+      "h": 0.5,
+      "material": "C25",
+      "kinds": [
+        "beam"
+      ]
+    },
+    {
+      "id": "W20x200",
+      "shape": "rect",
+      "b": 0.2,
+      "h": 2.0,
+      "material": "C25",
+      "kinds": [
+        "wall"
+      ]
+    }
+  ],
+  "levels": [
+    {
+      "id": "N0",
+      "elevation": 0.0,
+      "story_height": 3.5
+    },
+    {
+      "id": "P1",
+      "elevation": 3.5,
+      "story_height": 3.5
+    },
+    {
+      "id": "P2",
+      "elevation": 7.0,
+      "story_height": 3.5
+    }
+  ],
+  "nodes": [
+    {
+      "tag": 1,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 2,
+      "x": 6.0,
+      "y": 0.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 3,
+      "x": 12.0,
+      "y": 0.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 4,
+      "x": 0.0,
+      "y": 6.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 5,
+      "x": 6.0,
+      "y": 6.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 6,
+      "x": 12.0,
+      "y": 6.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 7,
+      "x": 0.0,
+      "y": 12.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 8,
+      "x": 6.0,
+      "y": 12.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 9,
+      "x": 12.0,
+      "y": 12.0,
+      "z": 0.0,
+      "level": "N0"
+    },
+    {
+      "tag": 10,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 11,
+      "x": 6.0,
+      "y": 0.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 12,
+      "x": 12.0,
+      "y": 0.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 13,
+      "x": 0.0,
+      "y": 6.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 14,
+      "x": 6.0,
+      "y": 6.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 15,
+      "x": 12.0,
+      "y": 6.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 16,
+      "x": 0.0,
+      "y": 12.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 17,
+      "x": 6.0,
+      "y": 12.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 18,
+      "x": 12.0,
+      "y": 12.0,
+      "z": 3.5,
+      "level": "P1"
+    },
+    {
+      "tag": 19,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 20,
+      "x": 6.0,
+      "y": 0.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 21,
+      "x": 12.0,
+      "y": 0.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 22,
+      "x": 0.0,
+      "y": 6.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 23,
+      "x": 6.0,
+      "y": 6.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 24,
+      "x": 12.0,
+      "y": 6.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 25,
+      "x": 0.0,
+      "y": 12.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 26,
+      "x": 6.0,
+      "y": 12.0,
+      "z": 7.0,
+      "level": "P2"
+    },
+    {
+      "tag": 27,
+      "x": 12.0,
+      "y": 12.0,
+      "z": 7.0,
+      "level": "P2"
+    }
+  ],
+  "supports": [
+    {
+      "node": 1,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 4,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 7,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 2,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 5,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 8,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 3,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 6,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    },
+    {
+      "node": 9,
+      "ux": true,
+      "uy": true,
+      "uz": true,
+      "rx": false,
+      "ry": false,
+      "rz": false
+    }
+  ],
+  "diaphragms": [
+    {
+      "id": "diaf_P1",
+      "level": "P1",
+      "master": 14,
+      "rigid": true,
+      "nodes": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ]
+    },
+    {
+      "id": "diaf_P2",
+      "level": "P2",
+      "master": 23,
+      "rigid": true,
+      "nodes": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "tag": 1000,
+      "kind": "column",
+      "i": 1,
+      "j": 10,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1001,
+      "kind": "column",
+      "i": 2,
+      "j": 11,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1002,
+      "kind": "column",
+      "i": 3,
+      "j": 12,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1003,
+      "kind": "column",
+      "i": 4,
+      "j": 13,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1004,
+      "kind": "column",
+      "i": 5,
+      "j": 14,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1005,
+      "kind": "column",
+      "i": 6,
+      "j": 15,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1006,
+      "kind": "column",
+      "i": 7,
+      "j": 16,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1007,
+      "kind": "column",
+      "i": 8,
+      "j": 17,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1008,
+      "kind": "column",
+      "i": 9,
+      "j": 18,
+      "section": "C40x40",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1009,
+      "kind": "column",
+      "i": 10,
+      "j": 19,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1010,
+      "kind": "column",
+      "i": 11,
+      "j": 20,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1011,
+      "kind": "column",
+      "i": 12,
+      "j": 21,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1012,
+      "kind": "column",
+      "i": 13,
+      "j": 22,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1013,
+      "kind": "column",
+      "i": 14,
+      "j": 23,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1014,
+      "kind": "column",
+      "i": 15,
+      "j": 24,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1015,
+      "kind": "column",
+      "i": 16,
+      "j": 25,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1016,
+      "kind": "column",
+      "i": 17,
+      "j": 26,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1017,
+      "kind": "column",
+      "i": 18,
+      "j": 27,
+      "section": "C40x40",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1018,
+      "kind": "beam",
+      "i": 10,
+      "j": 11,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1019,
+      "kind": "beam",
+      "i": 11,
+      "j": 12,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1020,
+      "kind": "beam",
+      "i": 13,
+      "j": 14,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1021,
+      "kind": "beam",
+      "i": 14,
+      "j": 15,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1022,
+      "kind": "beam",
+      "i": 16,
+      "j": 17,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1023,
+      "kind": "beam",
+      "i": 17,
+      "j": 18,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1024,
+      "kind": "beam",
+      "i": 10,
+      "j": 13,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1025,
+      "kind": "beam",
+      "i": 13,
+      "j": 16,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1026,
+      "kind": "beam",
+      "i": 11,
+      "j": 14,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1027,
+      "kind": "beam",
+      "i": 14,
+      "j": 17,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1028,
+      "kind": "beam",
+      "i": 12,
+      "j": 15,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1029,
+      "kind": "beam",
+      "i": 15,
+      "j": 18,
+      "section": "V30x50",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1030,
+      "kind": "beam",
+      "i": 19,
+      "j": 20,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1031,
+      "kind": "beam",
+      "i": 20,
+      "j": 21,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1032,
+      "kind": "beam",
+      "i": 22,
+      "j": 23,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1033,
+      "kind": "beam",
+      "i": 23,
+      "j": 24,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1034,
+      "kind": "beam",
+      "i": 25,
+      "j": 26,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1035,
+      "kind": "beam",
+      "i": 26,
+      "j": 27,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1036,
+      "kind": "beam",
+      "i": 19,
+      "j": 22,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1037,
+      "kind": "beam",
+      "i": 22,
+      "j": 25,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1038,
+      "kind": "beam",
+      "i": 20,
+      "j": 23,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1039,
+      "kind": "beam",
+      "i": 23,
+      "j": 26,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1040,
+      "kind": "beam",
+      "i": 21,
+      "j": 24,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1041,
+      "kind": "beam",
+      "i": 24,
+      "j": 27,
+      "section": "V30x50",
+      "level": "P2",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1042,
+      "kind": "wall",
+      "i": 1,
+      "j": 10,
+      "section": "W20x200",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1043,
+      "kind": "wall",
+      "i": 7,
+      "j": 16,
+      "section": "W20x200",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1044,
+      "kind": "wall",
+      "i": 3,
+      "j": 12,
+      "section": "W20x200",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "tag": 1045,
+      "kind": "wall",
+      "i": 9,
+      "j": 18,
+      "section": "W20x200",
+      "level": "P1",
+      "local_x": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ],
+  "slabs": [
+    {
+      "id": "losa_P1_1",
+      "level": "P1",
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          0.0,
+          6.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P1_2",
+      "level": "P1",
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          12.0,
+          0.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P1_3",
+      "level": "P1",
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          0.0,
+          12.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P1_4",
+      "level": "P1",
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          6.0,
+          12.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P2_1",
+      "level": "P2",
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          0.0,
+          6.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P2_2",
+      "level": "P2",
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          12.0,
+          0.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P2_3",
+      "level": "P2",
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          0.0,
+          12.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    },
+    {
+      "id": "losa_P2_4",
+      "level": "P2",
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          6.0,
+          12.0
+        ]
+      ],
+      "thickness": 0.15,
+      "material": "C25",
+      "qG": 5.0,
+      "qQ": 3.0
+    }
+  ],
+  "tributary_areas": [
+    {
+      "id": "TA_1",
+      "element": 1018,
+      "slab": "losa_P1_1",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6.0,
+          0.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_2",
+      "element": 1019,
+      "slab": "losa_P1_2",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          12.0,
+          0.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_3",
+      "element": 1020,
+      "slab": "losa_P1_3",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_4",
+      "element": 1020,
+      "slab": "losa_P1_1",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_5",
+      "element": 1021,
+      "slab": "losa_P1_4",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_6",
+      "element": 1021,
+      "slab": "losa_P1_2",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_7",
+      "element": 1022,
+      "slab": "losa_P1_3",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          12.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_8",
+      "element": 1023,
+      "slab": "losa_P1_4",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          12.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_9",
+      "element": 1024,
+      "slab": "losa_P1_1",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_10",
+      "element": 1025,
+      "slab": "losa_P1_3",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          0.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_11",
+      "element": 1026,
+      "slab": "losa_P1_2",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_12",
+      "element": 1026,
+      "slab": "losa_P1_1",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_13",
+      "element": 1027,
+      "slab": "losa_P1_4",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_14",
+      "element": 1027,
+      "slab": "losa_P1_3",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_15",
+      "element": 1028,
+      "slab": "losa_P1_2",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          12.0,
+          0.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_16",
+      "element": 1029,
+      "slab": "losa_P1_4",
+      "level": "P1",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          12.0,
+          6.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_17",
+      "element": 1030,
+      "slab": "losa_P2_1",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          6.0,
+          0.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_18",
+      "element": 1031,
+      "slab": "losa_P2_2",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          12.0,
+          0.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_19",
+      "element": 1032,
+      "slab": "losa_P2_3",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_20",
+      "element": 1032,
+      "slab": "losa_P2_1",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_21",
+      "element": 1033,
+      "slab": "losa_P2_4",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_22",
+      "element": 1033,
+      "slab": "losa_P2_2",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_23",
+      "element": 1034,
+      "slab": "losa_P2_3",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          12.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_24",
+      "element": 1035,
+      "slab": "losa_P2_4",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          12.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_25",
+      "element": 1036,
+      "slab": "losa_P2_1",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_26",
+      "element": 1037,
+      "slab": "losa_P2_3",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          0.0,
+          6.0
+        ],
+        [
+          0.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_27",
+      "element": 1038,
+      "slab": "losa_P2_2",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_28",
+      "element": 1038,
+      "slab": "losa_P2_1",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          0.0
+        ],
+        [
+          6.0,
+          6.0
+        ],
+        [
+          3.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_29",
+      "element": 1039,
+      "slab": "losa_P2_4",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_30",
+      "element": 1039,
+      "slab": "losa_P2_3",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          6.0,
+          6.0
+        ],
+        [
+          6.0,
+          12.0
+        ],
+        [
+          3.0,
+          9.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_31",
+      "element": 1040,
+      "slab": "losa_P2_2",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          12.0,
+          0.0
+        ],
+        [
+          12.0,
+          6.0
+        ],
+        [
+          9.0,
+          3.0
+        ]
+      ]
+    },
+    {
+      "id": "TA_32",
+      "element": 1041,
+      "slab": "losa_P2_4",
+      "level": "P2",
+      "case": "G",
+      "area": 9.0,
+      "polygon": [
+        [
+          12.0,
+          6.0
+        ],
+        [
+          12.0,
+          12.0
+        ],
+        [
+          9.0,
+          9.0
+        ]
+      ]
+    }
+  ],
+  "load_cases": {
+    "G": {
+      "description": "Gravedad: losa + terminaciones",
+      "slab_field": "qG"
+    },
+    "Q": {
+      "description": "Carga viva",
+      "slab_field": "qQ"
+    }
+  },
+  "analysis": {
+    "reactions": [
+      {
+        "node": 1,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 4,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 7,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 2,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 5,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 8,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 3,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 6,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 9,
+        "case": "G",
+        "rz": 160.0
+      },
+      {
+        "node": 1,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 4,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 7,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 2,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 5,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 8,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 3,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 6,
+        "case": "Q",
+        "rz": 96.0
+      },
+      {
+        "node": 9,
+        "case": "Q",
+        "rz": 96.0
+      }
+    ]
+  }
+}

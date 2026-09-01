@@ -1,0 +1,4 @@
+ezdxf>=1.4
+pypdf>=5.0
+pytest>=8.0
+numpy>=1.26

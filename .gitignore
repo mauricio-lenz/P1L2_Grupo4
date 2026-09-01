@@ -23,7 +23,8 @@ __pycache__/
 env/
 venv/
 *.json
-!data/model_data.json # Mantener el archivo JSON de ejemplo/oficial
+!data/model_data.json
+!python_parser/tests/fixtures/stub_model.json
 
 
 # DXF generados (conversión DWG -> DXF vía ODA). Solo se versionan los planos clave
