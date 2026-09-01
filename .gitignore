@@ -26,6 +26,25 @@ venv/
 !data/model_data.json # Mantener el archivo JSON de ejemplo/oficial
 
 
+# DXF generados (conversión DWG -> DXF vía ODA). Solo se versionan los planos clave
+*.dxf
+!cad_files/dxf/2017_67/2017_67-100.dxf
+!cad_files/dxf/2017_67/2017_67-101.dxf
+!cad_files/dxf/2017_67/2017_67-102.dxf
+!cad_files/dxf/2017_67/2017_67-103.dxf
+!cad_files/dxf/2017_67/2017_67-200-S.dxf
+!cad_files/dxf/2017_67/2017_67-201.dxf
+!cad_files/dxf/2017_67/2017_67-202-S.dxf
+!cad_files/dxf/2017_67/2017_67-203.dxf
+!cad_files/dxf/2017_67/2017_67-204.dxf
+!cad_files/dxf/2017_67/2017_67-205.dxf
+!cad_files/dxf/2017_67/2017_67-700.dxf
+!cad_files/dxf/2024_22/2024_22-100.dxf
+!cad_files/dxf/2024_22/2024_22-101.dxf
+!cad_files/dxf/2024_22/2024_22-102.dxf
+!cad_files/dxf/2024_22/2024_22-700.dxf
+
+
 # Sistema operativo
 .DS_Store
 Thumbs.db
