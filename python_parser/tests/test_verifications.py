@@ -79,8 +79,8 @@ def test_data_model_data_json_is_valid():
 
 def test_example_json_matches_stub():
     model = build_stub_model()
-    path = os.path.join(os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__)))), "data", "model_data.json")
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "fixtures", "stub_model.json")
     with open(path, encoding="utf-8") as fh:
         on_disk = json.load(fh)
     assert on_disk == model
