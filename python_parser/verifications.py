@@ -155,6 +155,48 @@ def run_all(model):
     ]
 
 
+def make_summary(model):
+    kinds = {}
+    for e in model["elements"]:
+        kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+    slabs_area = {}
+    for s in model["slabs"]:
+        slabs_area[s["level"]] = slabs_area.get(s["level"], 0.0) + polygon_area(s["polygon"])
+    cases = model["load_cases"]
+    lines = ["=== RESUMEN DEL MODELO ==="]
+    lines.append("Nodos: %d | Elementos: %d | Columnas: %d | Vigas+muros: %d | Losas: %d | Areas tributarias: %d | Apoyos: %d"
+                 % (len(model["nodes"]), len(model["elements"]),
+                    kinds.get("column", 0), kinds.get("beam", 0) + kinds.get("wall", 0),
+                    len(model["slabs"]), len(model["tributary_areas"]),
+                    len({r.get("node") for r in model["analysis"]["reactions"]})))
+    lines.append("Niveles: %s" % ", ".join("%s=%.2f m" % (l["id"], l["elevation"]) for l in model["levels"]))
+    lines.append("")
+    lines.append("=== CARGAS POR PISO (q x area de losa) ===")
+    header = "%-4s %10s %10s %10s %10s %10s" % ("Piso", "Area m2", "q_G kPa", "G kN", "q_Q kPa", "Q kN")
+    lines.append(header)
+    lines.append("-" * len(header))
+    for s in model["slabs"]:
+        area = polygon_area(s["polygon"])
+        qg = s[cases["G"]["slab_field"]]
+        qq = s[cases["Q"]["slab_field"]]
+        lines.append("%-4s %10.1f %10.3f %10.1f %10.3f %10.1f" % (s["level"], area, qg, qg * area, qq, qq * area))
+    for case in sorted(cases):
+        applied = 0.0
+        for t in model["tributary_areas"]:
+            slab = next(x for x in model["slabs"] if x["id"] == t["slab"])
+            applied -= t["area"] * slab[cases[case]["slab_field"]]
+        reac = sum(r["rz"] for r in model["analysis"]["reactions"] if r.get("case") == case)
+        lines.append("")
+        lines.append("=== EQUILIBRIO %s ===" % case)
+        lines.append("aplicada = %.1f kN | reacciones = %.1f kN" % (applied, reac))
+    checks = run_all(model)
+    ok = all(c["ok"] for c in checks)
+    lines.append("")
+    lines.append("".join("%s: %s  " % ("PASS" if c["ok"] else "FAIL", c["name"]) for c in checks))
+    lines.append("RESULTADO GLOBAL: %s" % ("OK" if ok else "FALLAN CHECKS"))
+    return "\n".join(lines)
+
+
 def make_report(model):
     checks = run_all(model)
     ok_all = all(c["ok"] for c in checks)
@@ -164,10 +206,14 @@ def make_report(model):
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
+    args = [a for a in sys.argv[1:] if not a.startswith("-")]
+    path = args[0] if args else os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         "data", "model_data.json")
     with open(path, encoding="utf-8") as fh:
         model = json.load(fh)
+    if "--summary" in sys.argv[1:]:
+        print(make_summary(model))
+        sys.exit(0 if run_all(model) else 1)
     print(make_report(model))
     sys.exit(0 if all(c["ok"] for c in run_all(model)) else 1)
