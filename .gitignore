@@ -1,4 +1,4 @@
-# Unity (recursivo: cubre unity/ y raíz)
+﻿# Unity (recursivo: cubre unity/ y raÃ­z)
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -23,7 +23,6 @@ __pycache__/
 .venv/
 env/
 venv/
-*.json
 !data/model_data.json
 !python_parser/tests/fixtures/stub_model.json
 !unity/Packages/manifest.json
@@ -32,7 +31,7 @@ venv/
 # refrescar copiando desde data/ (script copy_data_to_unity.ps1)
 
 
-# DXF generados (conversión DWG -> DXF vía ODA). Solo se versionan los planos clave
+# DXF generados (conversiÃ³n DWG -> DXF vÃ­a ODA). Solo se versionan los planos clave
 *.dxf
 !cad_files/dxf/2017_67/2017_67-100.dxf
 !cad_files/dxf/2017_67/2017_67-101.dxf
@@ -54,3 +53,5 @@ venv/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+*.json
+output/
