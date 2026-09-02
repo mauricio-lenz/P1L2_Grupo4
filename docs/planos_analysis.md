@@ -39,6 +39,11 @@ empalman sin transformación. Ver archivo_inventory.txt para catálogo completo.
 ## Decisiones de modelado
 - Losas NO se modelan con FE; se transfieren por áreas tributarias (triángulo por paño,
   igual geometría para G y Q) — regla ya codificada y verificada en la fase 1.
+- Vigas implícitas de marco: si dos nodos consecutivos (columna/extremo) de una misma fila o
+  columna de la retícula no tienen viga/muro por evidencia escrita, se asume viga (convención
+  de pórtico de hormigón). Necesario porque la evidencia escrita es escasa en -102
+  (detección por capa RLE-VIGA dio 2 vigas en P2) y la transferencia de carga quedaría
+  concentrada en muy pocas vigas. Resultado actual: P1 143 + 8 muros, P2 104, P3 48 vigas.
 - q_G real proviene de la hoja de cargas (2017_67-700) + ETG; pendiente de extraer valores.
 - Los niveles/secciones reales se asignan por lámina; verificación diaria con
   `python python_parser/verifications.py data/model_data.json`.

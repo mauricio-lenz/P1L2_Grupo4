@@ -255,6 +255,53 @@ def main(out_path):
                                 "z": LEVELS[bid]["elevation"], "level": LEVELS[bid]["id"]}
     model_nodes = [node_map[k] for k in sorted(node_map)]
 
+    # vigas implícitas de marco: en cada fila/columna de la retícula, los nodos
+    # consecutivos (columna o extremo) se conectan con viga si no hay viga/muro por
+    # evidencia. Mejora la transferencia de carga en pisos con poca evidencia escrita
+    # (p. ej. -102: 2 -> ~50 vigas) y completa la grilla de pórticos del stub.
+    occupied = set()
+    for e in elements:
+        if e["kind"] in ("beam", "wall"):
+            occupied.add((e["i"], e["j"]))
+            occupied.add((e["j"], e["i"]))
+    tag = max(e["tag"] for e in elements) + 1
+    for fl in floors:
+        if fl["lev"] == 0:
+            continue
+        lev = fl["lev"]
+        lvl = LEVELS[lev]["id"]
+        nodes_lvl = {tag_id: n for tag_id, n in node_map.items() if n["level"] == lvl}
+        rows = {}
+        cols = {}
+        for tag_id, n in nodes_lvl.items():
+            xi, yj = (tag_id % 1_000_000) // 1000, tag_id % 1000
+            rows.setdefault(yj, []).append((xi, tag_id))
+            cols.setdefault(xi, []).append((yj, tag_id))
+        candidates = []
+        for yj, lst in rows.items():
+            lst.sort()
+            for (_, i), (_, j) in zip(lst, lst[1:]):
+                candidates.append((i, j))
+        for xi, lst in cols.items():
+            lst.sort()
+            for (_, i), (_, j) in zip(lst, lst[1:]):
+                candidates.append((i, j))
+        for (i, j) in candidates:
+            if (i, j) not in occupied:
+                ni, nj = node_map[i], node_map[j]
+                xm = 0.5 * (ni["x"] + nj["x"])
+                ym = 0.5 * (ni["y"] + nj["y"])
+                b, h = fl["dims_for"]("beam", (xm, ym))
+                elements.append({"tag": tag, "kind": "beam",
+                                 "i": i, "j": j,
+                                 "section": sec_id("beam", b, h),
+                                 "level": lvl,
+                                 "local_x": [1.0, 0.0, 0.0]})
+                occupied.add((i, j))
+                occupied.add((j, i))
+                tag += 1
+    elements.sort(key=lambda x: x["tag"])
+
     # apoyos, diafragmas, losas
     supports = [{"node": n["tag"], "ux": True, "uy": True, "uz": True,
                  "rx": False, "ry": False, "rz": False}
