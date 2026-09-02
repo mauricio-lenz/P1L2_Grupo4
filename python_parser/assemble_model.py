@@ -31,20 +31,24 @@ MAT_H = {"id": "C25", "name": "Hormigon C25", "type": "concrete",
 G_LOADS_KG = {"E": 0.15, "PM_ADIC": 260.0, "SC": 300.0}
 _KG2KPA = 9.80665 / 1000.0
 LOADS = {}
-for _lvl in ("P1", "P2", "P3"):
+for _lvl in ("S2", "S1", "P1", "P2", "P3", "A"):
     qg = (G_LOADS_KG["E"] * 2500.0 + G_LOADS_KG["PM_ADIC"]) * _KG2KPA
     LOADS[_lvl] = {"qG": round(qg, 3), "qQ": round(G_LOADS_KG["SC"] * _KG2KPA, 3)}
 
 LEVELS = [
-    {"id": "N0", "elevation": 0.0, "story_height": 0.0},
-    {"id": "P1", "elevation": 3.5, "story_height": 3.5},
-    {"id": "P2", "elevation": 7.0, "story_height": 3.5},
-    {"id": "P3", "elevation": 10.5, "story_height": 3.5},
+    {"id": "S2", "elevation": -8.42, "story_height": 0.0},
+    {"id": "S1", "elevation": -4.01, "story_height": 4.41},
+    {"id": "P1", "elevation": -0.05, "story_height": 3.96},
+    {"id": "P2", "elevation": 3.91, "story_height": 3.96},
+    {"id": "P3", "elevation": 7.87, "story_height": 3.96},
+    {"id": "A", "elevation": 11.83, "story_height": 3.96},
 ]
+# PLANS: (ruta_dxf, [indices de LEVELS a los que sirve], indice base)
 PLANS = [
-    ("cad_files/dxf/2017_67/2017_67-101.dxf", 1, 0),
-    ("cad_files/dxf/2017_67/2017_67-102.dxf", 2, 1),
-    ("cad_files/dxf/2017_67/2017_67-103.dxf", 3, 2),
+    ("cad_files/dxf/2017_67/2017_67-100.dxf", [0], 0),        # S2 <- fundaciones/subterraneo
+    ("cad_files/dxf/2017_67/2017_67-101.dxf", [1, 2], 0),     # S1 y P1 comparten huella
+    ("cad_files/dxf/2017_67/2017_67-102.dxf", [3, 4], 1),     # P2 y P3
+    ("cad_files/dxf/2017_67/2017_67-103.dxf", [5], 2),        # Azotea (techo sobre P3)
 ]
 
 P_COL = re.compile(r"(\d+)\s*[xX]\s*(\d+)")
@@ -197,7 +201,10 @@ def build_floor(path, lev):
 
 
 def main(out_path):
-    floors = [build_floor(path, lev) for path, lev, _base in PLANS]
+    # Cada plano estructural ("planta cielo") puede dibujar varias losas/niveles
+    # (p.ej. -101 dibuja S1 y P1). Generamos la geometria una vez con el nivel de
+    # plantilla (levels[0]) y la expandimos a los niveles restantes del mismo plano.
+    floors = [(build_floor(path, levels[0]), levels) for path, levels, _base in PLANS]
     level_idx_e = {l["id"]: k for k, l in enumerate(LEVELS)}
 
     # secciones únicas
@@ -214,39 +221,39 @@ def main(out_path):
             sec_pool[key] = sid
         return sec_pool[key]
 
-    # elementos con sección
+    # elementos con sección (una geometría por plano, expandida a sus niveles)
     elements = []
     tag = 1000
-    for fidx, fl in enumerate(floors):
-        lev = fl["lev"]
+    for fidx, (fl, levs) in enumerate(floors):
         base = PLANS[fidx][2]
-        for (xi, yj) in sorted(fl["col_nodes"]):
-            b, h = fl["dims_for"]("col", (fl["xs"][xi], fl["ys"][yj]))
-            elements.append({"tag": tag, "kind": "column",
-                             "i": ntag(base, xi, yj), "j": ntag(lev, xi, yj),
-                             "section": sec_id("col", b, h), "level": LEVELS[lev]["id"],
-                             "local_x": [0.0, 0.0, 1.0]})
-            tag += 1
-        for (kind, x0, y0, x1, y1) in fl["spans"]:
-            xm = 0.5 * (fl["node_xy"][(x0, y0)][0] + fl["node_xy"][(x1, y1)][0])
-            ym = 0.5 * (fl["node_xy"][(x0, y0)][1] + fl["node_xy"][(x1, y1)][1])
-            b, h = fl["dims_for"](kind, (xm, ym))
-            elements.append({"tag": tag, "kind": kind,
-                             "i": ntag(lev, x0, y0), "j": ntag(lev, x1, y1),
-                             "section": sec_id(kind, b, h), "level": LEVELS[lev]["id"],
-                             "local_x": [1.0, 0.0, 0.0]})
-            tag += 1
+        for lev in levs:
+            for (xi, yj) in sorted(fl["col_nodes"]):
+                b, h = fl["dims_for"]("col", (fl["xs"][xi], fl["ys"][yj]))
+                elements.append({"tag": tag, "kind": "column",
+                                 "i": ntag(base, xi, yj), "j": ntag(lev, xi, yj),
+                                 "section": sec_id("col", b, h), "level": LEVELS[lev]["id"],
+                                 "local_x": [0.0, 0.0, 1.0]})
+                tag += 1
+            for (kind, x0, y0, x1, y1) in fl["spans"]:
+                xm = 0.5 * (fl["node_xy"][(x0, y0)][0] + fl["node_xy"][(x1, y1)][0])
+                ym = 0.5 * (fl["node_xy"][(x0, y0)][1] + fl["node_xy"][(x1, y1)][1])
+                b, h = fl["dims_for"](kind, (xm, ym))
+                elements.append({"tag": tag, "kind": kind,
+                                 "i": ntag(lev, x0, y0), "j": ntag(lev, x1, y1),
+                                 "section": sec_id(kind, b, h), "level": LEVELS[lev]["id"],
+                                 "local_x": [1.0, 0.0, 0.0]})
+                tag += 1
     elements.sort(key=lambda x: x["tag"])
 
-    # nodos
+    # nodos: por cada nivel de cada plano (misma XY, cota del nivel)
     node_map = {}
-    for fl in floors:
-        lev = fl["lev"]
-        for (xi, yj) in fl["node_ids"]:
-            x, y = fl["node_xy"][(xi, yj)]
-            node_map[ntag(lev, xi, yj)] = {"tag": ntag(lev, xi, yj), "x": x, "y": y,
-                                           "z": LEVELS[lev]["elevation"],
-                                           "level": LEVELS[lev]["id"]}
+    for fl, levs in floors:
+        for lev in levs:
+            for (xi, yj) in fl["node_ids"]:
+                x, y = fl["node_xy"][(xi, yj)]
+                node_map[ntag(lev, xi, yj)] = {"tag": ntag(lev, xi, yj), "x": x, "y": y,
+                                               "z": LEVELS[lev]["elevation"],
+                                               "level": LEVELS[lev]["id"]}
     for e in elements:
         if e["kind"] == "column" and e["i"] not in node_map:
             src = node_map[e["j"]]
@@ -265,64 +272,66 @@ def main(out_path):
             occupied.add((e["i"], e["j"]))
             occupied.add((e["j"], e["i"]))
     tag = max(e["tag"] for e in elements) + 1
-    for fl in floors:
-        if fl["lev"] == 0:
-            continue
-        lev = fl["lev"]
-        lvl = LEVELS[lev]["id"]
-        nodes_lvl = {tag_id: n for tag_id, n in node_map.items() if n["level"] == lvl}
-        rows = {}
-        cols = {}
-        for tag_id, n in nodes_lvl.items():
-            xi, yj = (tag_id % 1_000_000) // 1000, tag_id % 1000
-            rows.setdefault(yj, []).append((xi, tag_id))
-            cols.setdefault(xi, []).append((yj, tag_id))
-        candidates = []
-        for yj, lst in rows.items():
-            lst.sort()
-            for (_, i), (_, j) in zip(lst, lst[1:]):
-                candidates.append((i, j))
-        for xi, lst in cols.items():
-            lst.sort()
-            for (_, i), (_, j) in zip(lst, lst[1:]):
-                candidates.append((i, j))
-        for (i, j) in candidates:
-            if (i, j) not in occupied:
-                ni, nj = node_map[i], node_map[j]
-                xm = 0.5 * (ni["x"] + nj["x"])
-                ym = 0.5 * (ni["y"] + nj["y"])
-                b, h = fl["dims_for"]("beam", (xm, ym))
-                elements.append({"tag": tag, "kind": "beam",
-                                 "i": i, "j": j,
-                                 "section": sec_id("beam", b, h),
-                                 "level": lvl,
-                                 "local_x": [1.0, 0.0, 0.0]})
-                occupied.add((i, j))
-                occupied.add((j, i))
-                tag += 1
+    for fl, levs in floors:
+        for lev in levs:
+            if lev == 0:
+                continue
+            lvl = LEVELS[lev]["id"]
+            nodes_lvl = {tag_id: n for tag_id, n in node_map.items() if n["level"] == lvl}
+            rows = {}
+            cols = {}
+            for tag_id, n in nodes_lvl.items():
+                xi, yj = (tag_id % 1_000_000) // 1000, tag_id % 1000
+                rows.setdefault(yj, []).append((xi, tag_id))
+                cols.setdefault(xi, []).append((yj, tag_id))
+            candidates = []
+            for yj, lst in rows.items():
+                lst.sort()
+                for (_, i), (_, j) in zip(lst, lst[1:]):
+                    candidates.append((i, j))
+            for xi, lst in cols.items():
+                lst.sort()
+                for (_, i), (_, j) in zip(lst, lst[1:]):
+                    candidates.append((i, j))
+            for (i, j) in candidates:
+                if (i, j) not in occupied:
+                    ni, nj = node_map[i], node_map[j]
+                    xm = 0.5 * (ni["x"] + nj["x"])
+                    ym = 0.5 * (ni["y"] + nj["y"])
+                    b, h = fl["dims_for"]("beam", (xm, ym))
+                    elements.append({"tag": tag, "kind": "beam",
+                                     "i": i, "j": j,
+                                     "section": sec_id("beam", b, h),
+                                     "level": lvl,
+                                     "local_x": [1.0, 0.0, 0.0]})
+                    occupied.add((i, j))
+                    occupied.add((j, i))
+                    tag += 1
     elements.sort(key=lambda x: x["tag"])
 
-    # apoyos, diafragmas, losas
+    # apoyos (base = nivel inferior S2), diafragmas y losas (una por nivel)
+    supports_lvl = LEVELS[0]["id"]
     supports = [{"node": n["tag"], "ux": True, "uy": True, "uz": True,
                  "rx": False, "ry": False, "rz": False}
-                for n in model_nodes if n["level"] == "N0"]
+                for n in model_nodes if n["level"] == supports_lvl]
     diaphragms = []
-    for lev in (1, 2, 3):
+    for lev in range(1, len(LEVELS)):
         lv = LEVELS[lev]["id"]
         nods = sorted(k for k, n in node_map.items() if n["level"] == lv)
+        if not nods:
+            continue
         diaphragms.append({"id": f"diaf_{lv}", "level": lv, "master": nods[0],
                            "rigid": True, "nodes": nods})
     slabs = []
-    for fl in floors:
-        if fl["lev"] == 0:
-            continue
-        lv = LEVELS[fl["lev"]]["id"]
+    for fl, levs in floors:
         x0, x1 = min(fl["xs"]), max(fl["xs"])
         y0, y1 = min(fl["ys"]), max(fl["ys"])
-        slabs.append({"id": f"losa_{lv}", "level": lv,
-                      "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
-                      "thickness": fl["slab_t"], "material": "C25",
-                      "qG": LOADS[lv]["qG"], "qQ": LOADS[lv]["qQ"]})
+        for lev in levs:
+            lv = LEVELS[lev]["id"]
+            slabs.append({"id": f"losa_{lv}", "level": lv,
+                          "polygon": [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+                          "thickness": fl["slab_t"], "material": "C25",
+                          "qG": LOADS[lv]["qG"], "qQ": LOADS[lv]["qQ"]})
 
     # áreas tributarias: por paño de retícula, triángulo a cada viga de borde
     # (fallback: viga más cercana si el borde no tiene viga). Conserva por construcción.
@@ -338,52 +347,46 @@ def main(out_path):
                                   0.5 * (node_i["y"] + node_j["y"]))
     trib = []
     count = 0
-    for fl in floors:
-        if fl["lev"] == 0:
-            continue
-        lv = LEVELS[fl["lev"]]["id"]
+    for fl, levs in floors:
         x0, x1 = min(fl["xs"]), max(fl["xs"])
         y0, y1 = min(fl["ys"]), max(fl["ys"])
-        beam_keys = {("beam", ntag(fl["lev"], sp[1], sp[2]),
-                      ntag(fl["lev"], sp[3], sp[4])): None
-                     for sp in fl["spans"] if sp[0] == "beam"}
-        beams_lvl = [e["tag"] for e in elements
-                     if e["kind"] == "beam" and e["level"] == lv]
-        if not beams_lvl:
-            continue
-        cell_tri = []
-        for iy in range(len(fl["ys"]) - 1):
-            for ix in range(len(fl["xs"]) - 1):
-                xa, xb = fl["xs"][ix], fl["xs"][ix + 1]
-                ya, yb = fl["ys"][iy], fl["ys"][iy + 1]
-                xm, ym = 0.5 * (xa + xb), 0.5 * (ya + yb)
-                bl = (xa, ya)
-                br = (xb, ya)
-                tr = (xb, yb)
-                tl = (xa, yb)
-                # borde -> (p1, p2, nodo_i, nodo_j)
-                edges = []
-                edges.append(((ix, iy), (ix + 1, iy), ntag(fl["lev"], ix, iy),
-                             ntag(fl["lev"], ix + 1, iy)))
-                edges.append(((ix, iy + 1), (ix + 1, iy + 1), ntag(fl["lev"], ix, iy + 1),
-                             ntag(fl["lev"], ix + 1, iy + 1)))
-                edges.append(((ix, iy), (ix, iy + 1), ntag(fl["lev"], ix, iy),
-                             ntag(fl["lev"], ix, iy + 1)))
-                edges.append(((ix + 1, iy), (ix + 1, iy + 1), ntag(fl["lev"], ix + 1, iy),
-                             ntag(fl["lev"], ix + 1, iy + 1)))
-                tris = [[bl, br, [xm, ym]], [tl, tr, [xm, ym]],
-                        [bl, tl, [xm, ym]], [br, tr, [xm, ym]]]
-                for (pa, pb, i, j), tri in zip(edges, tris):
-                    tag = elem_by_span.get(("beam", i, j))
-                    if tag is None:
-                        cx, cy = tri[2]
-                        tag = min(beams_lvl, key=lambda t: (elem_pos[t][0] - cx) ** 2
-                                  + (elem_pos[t][1] - cy) ** 2)
-                    A = _poly_area(tri)
-                    count += 1
-                    trib.append({"id": f"TA_{count}", "element": tag,
-                                 "slab": f"losa_{lv}", "level": lv, "case": "G",
-                                 "area": A, "polygon": tri})
+        for lev in levs:
+            lv = LEVELS[lev]["id"]
+            beams_lvl = [e["tag"] for e in elements
+                         if e["kind"] == "beam" and e["level"] == lv]
+            if not beams_lvl:
+                continue
+            for iy in range(len(fl["ys"]) - 1):
+                for ix in range(len(fl["xs"]) - 1):
+                    xa, xb = fl["xs"][ix], fl["xs"][ix + 1]
+                    ya, yb = fl["ys"][iy], fl["ys"][iy + 1]
+                    xm, ym = 0.5 * (xa + xb), 0.5 * (ya + yb)
+                    bl = (xa, ya)
+                    br = (xb, ya)
+                    tr = (xb, yb)
+                    tl = (xa, yb)
+                    edges = []
+                    edges.append(((ix, iy), (ix + 1, iy), ntag(lev, ix, iy),
+                                 ntag(lev, ix + 1, iy)))
+                    edges.append(((ix, iy + 1), (ix + 1, iy + 1), ntag(lev, ix, iy + 1),
+                                 ntag(lev, ix + 1, iy + 1)))
+                    edges.append(((ix, iy), (ix, iy + 1), ntag(lev, ix, iy),
+                                 ntag(lev, ix, iy + 1)))
+                    edges.append(((ix + 1, iy), (ix + 1, iy + 1), ntag(lev, ix + 1, iy),
+                                 ntag(lev, ix + 1, iy + 1)))
+                    tris = [[bl, br, [xm, ym]], [tl, tr, [xm, ym]],
+                            [bl, tl, [xm, ym]], [br, tr, [xm, ym]]]
+                    for (pa, pb, i, j), tri in zip(edges, tris):
+                        tag = elem_by_span.get(("beam", i, j))
+                        if tag is None:
+                            cx, cy = tri[2]
+                            tag = min(beams_lvl, key=lambda t: (elem_pos[t][0] - cx) ** 2
+                                      + (elem_pos[t][1] - cy) ** 2)
+                        A = _poly_area(tri)
+                        count += 1
+                        trib.append({"id": f"TA_{count}", "element": tag,
+                                     "slab": f"losa_{lv}", "level": lv, "case": "G",
+                                     "area": A, "polygon": tri})
 
     sections = []
     for (kind, b, h), sid in sec_pool.items():

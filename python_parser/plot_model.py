@@ -8,10 +8,13 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
-KIND_COLOR = {"column": "#3b82f6", "beam": "#94a3b8", "wall": "#22c55e"}
+KIND_COLOR = {"column": "#3b82f6", "beam": "#eab308", "wall": "#8b5cf6"}
 KIND_WIDTH = {"column": 2.5, "beam": 1.0, "wall": 1.8}
-SLAB_ALPHA = 0.25
-LEVEL_COLOR = {"N0": "#cbd5e1", "P1": "#60a5fa", "P2": "#22c55e", "P3": "#f59e0b"}
+SLAB_ALPHA = 0.35
+# Subterraneos se dibujan como masa solida (base), niveles superiores como losas.
+BASEMENT_LEVELS = {"S1", "S2"}
+LEVEL_COLOR = {"S2": "#92400e", "S1": "#b45309", "P1": "#60a5fa",
+               "P2": "#22c55e", "P3": "#f59e0b", "A": "#f472b6"}
 
 
 def main():
@@ -45,10 +48,30 @@ def main():
 
     for s in model["slabs"]:
         z = next(l["elevation"] for l in model["levels"] if l["id"] == s["level"])
-        verts = [[(p[0], p[1], z) for p in s["polygon"]]]
         col = LEVEL_COLOR.get(s["level"], "#ffffff")
-        poly = Poly3DCollection(verts, alpha=SLAB_ALPHA, facecolor=col, edgecolor=col, linewidths=0.5)
-        ax.add_collection3d(poly)
+        if s["level"] in BASEMENT_LEVELS:
+            # masa solida: prisma desde la base del edificio hasta este nivel
+            below = [l["elevation"] for l in model["levels"] if l["elevation"] < z]
+            z0 = min(below) if below else min(l["elevation"] for l in model["levels"]) - 1.0
+            poly = s["polygon"]
+            xs_p = [p[0] for p in poly] + [poly[0][0]]
+            ys_p = [p[1] for p in poly] + [poly[0][1]]
+            walls = []
+            for k in range(len(poly)):
+                a = poly[k]
+                b = poly[(k + 1) % len(poly)]
+                walls.append([(a[0], a[1], z0), (b[0], b[1], z0),
+                              (b[0], b[1], z), (a[0], a[1], z)])
+            faces = [[(p[0], p[1], z0) for p in poly],
+                     [(p[0], p[1], z) for p in poly]] + walls
+            body = Poly3DCollection(faces, alpha=0.30, facecolor=col, edgecolor=col,
+                                    linewidths=0.4)
+            ax.add_collection3d(body)
+        else:
+            verts = [[(p[0], p[1], z) for p in s["polygon"]]]
+            poly = Poly3DCollection(verts, alpha=SLAB_ALPHA, facecolor=col,
+                                    edgecolor=col, linewidths=0.5)
+            ax.add_collection3d(poly)
 
     ax.set_xlabel("X (m)", color="white", fontsize=9)
     ax.set_ylabel("Y (m)", color="white", fontsize=9)
@@ -67,14 +90,15 @@ def main():
     pad = 2
     ax.set_xlim(min(xs) - pad, max(xs) + pad)
     ax.set_ylim(min(ys) - pad, max(ys) + pad)
-    ax.set_zlim(-0.5, max(zs) + pad)
-    ax.set_box_aspect([max(xs) - min(xs), max(ys) - min(ys), max(zs) + 0.5])
+    zmin = min([l["elevation"] for l in model["levels"]]) - 1.0
+    ax.set_zlim(zmin, max(zs) + pad)
+    ax.set_box_aspect([max(xs) - min(xs), max(ys) - min(ys), max(zs) - zmin])
     ax.view_init(elev=30, azim=-60)
 
     from matplotlib.lines import Line2D
     legend = [Line2D([0], [0], color=c, lw=2, label=k) for k, c in KIND_COLOR.items()]
-    legend += [Line2D([0], [0], color=LEVEL_COLOR[l], lw=8, alpha=0.5, label=f"Losas {l}")
-               for l in ["P1", "P2", "P3"]]
+    legend += [Line2D([0], [0], color=LEVEL_COLOR[l], lw=8, alpha=0.6, label=f"Losa {l}")
+               for l in ["S2", "S1", "P1", "P2", "P3", "A"]]
     ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="#1e293b", edgecolor="#475569", labelcolor="white")
 
     path_out = os.path.join(out, "model_plot.png")
