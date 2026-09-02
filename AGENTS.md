@@ -25,7 +25,8 @@ Convención: eje de elevación Z. Un solo sistema de unidades en todo el reposit
 
 # Data contract
 - El esquema vive en python_parser/schema.py.
-- El modelo es data/model_data.json; regenerar con python_parser/generate_stub_model.py.
+- El modelo es data/model_data.json; regenerar con python_parser/assemble_model.py (real)
+  o python_parser/generate_stub_model.py (stub de pruebas).
 - No modificar el contrato JSON sin actualizar schema.py y los tests.
 
 # Verification rules
@@ -41,6 +42,15 @@ Convención: eje de elevación Z. Un solo sistema de unidades en todo el reposit
 # Cad pipeline
 - Los DWG se convierten a DXF con ODA File Converter (python_parser/convert_dwg_to_dxf.py).
 - Solo se versionan los planos clave listados en .gitignore.
+
+# Unity
+- Versión fijada: Unity 6 (6000.0.32f1), registrada en README.md y
+  unity/ProjectSettings/ProjectVersion.txt. No cambiar de versión en mitad del proyecto.
+- Proyecto del viewer en unity/ (Assets/, Packages/, ProjectSettings/).
+- Única conversión de coordenadas: CoordinateMap (OS (x,y,z) -> Unity (x,z,y)); todas las
+  coordenadas deben pasar por ella.
+- El viewer lee directo data/model_data.json (TextAsset) vía ModelBuilder; la escena Unity
+  NO es fuente de verdad: el modelo se reconstruye desde los datos.
 
 # Workflow
 - Plan -> Build -> Test -> Review -> Merge.
