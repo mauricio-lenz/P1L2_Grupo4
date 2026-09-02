@@ -52,6 +52,8 @@ public static class SceneWizard
             so.FindProperty("modelJson").objectReferenceValue = asset;
             so.ApplyModifiedProperties();
         }
+        app.AddComponent<ViewControls>();
+        app.AddComponent<TributaryInspector>();
 
         EditorSceneManager.SaveScene(scene, scenesDir + "/Main.unity");
         Debug.Log("SceneWizard: Assets/Scenes/Main.unity guardada.");

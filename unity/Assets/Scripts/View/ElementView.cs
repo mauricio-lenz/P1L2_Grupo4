@@ -11,6 +11,7 @@ public class ElementView : MonoBehaviour
     public int NodeI { get; private set; }
     public int NodeJ { get; private set; }
     public string Kind { get; private set; }
+    public Vector3 LocalX { get; private set; }
 
     private float radius;
 
@@ -21,6 +22,11 @@ public class ElementView : MonoBehaviour
         NodeJ = nodeJ;
         Kind = kind;
         this.radius = radius;
+    }
+
+    public void SetLocalX(Vector3 localX)
+    {
+        LocalX = localX;
     }
 
     public void SetEndpoints(Vector3 a, Vector3 b)

@@ -26,6 +26,18 @@ public class ElementData
     public string kind;
     public string section;
     public string level;
+    public List<float> local_x;
+}
+
+[Serializable]
+public class TributaryArea
+{
+    public string id;
+    public int element;
+    public string slab;
+    public string level;
+    public string @case;
+    public float area;
 }
 
 [Serializable]
@@ -47,6 +59,8 @@ public class SlabData
     public string level;
     public float thickness;
     public List<List<float>> polygon;
+    public float qG;
+    public float qQ;
 }
 
 [Serializable]
@@ -64,6 +78,7 @@ public class ModelData
     public List<SupportData> supports;
     public List<SlabData> slabs;
     public List<LevelData> levels;
+    public List<TributaryArea> tributary_areas;
 }
 
 public static class ModelDataLoader

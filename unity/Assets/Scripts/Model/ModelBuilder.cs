@@ -12,6 +12,16 @@ public class ModelBuilder : MonoBehaviour
 
     private ModelData model;
 
+    public List<NodeData> Nodes { get; private set; } = new List<NodeData>();
+    public List<GameObject> NodeObjects { get; private set; } = new List<GameObject>();
+    public List<GameObject> ElementObjects { get; private set; } = new List<GameObject>();
+    public List<GameObject> SupportObjects { get; private set; } = new List<GameObject>();
+    public List<GameObject> SlabObjects { get; private set; } = new List<GameObject>();
+    public List<TributaryArea> TributaryAreas { get; private set; } = new List<TributaryArea>();
+    public Dictionary<string, Vector2> SlabQ { get; private set; } = new Dictionary<string, Vector2>();
+
+    private Transform rowNodes, rowElements, rowSlabs, rowSupports;
+
     private void Start()
     {
         if (modelJson == null)
@@ -23,12 +33,49 @@ public class ModelBuilder : MonoBehaviour
         var nodeIndex = ModelDataLoader.BuildNodeIndex(model);
         var elementTags = new System.Collections.Generic.HashSet<int>();
 
+        rowNodes = MakeRow("Row_Nodes");
+        rowElements = MakeRow("Row_Elements");
+        rowSlabs = MakeRow("Row_Slabs");
+        rowSupports = MakeRow("Row_Supports");
+
         BuildNodes(nodeIndex);
         BuildElements(nodeIndex, elementTags);
         BuildSlabs();
         BuildSupports(nodeIndex);
-        Debug.Log($"ModelBuilder: {model.nodes.Count} nodos, {model.elements.Count} " +
-                  $"elementos, {model.slabs.Count} losas, {model.supports.Count} apoyos.");
+        if (model.tributary_areas != null) TributaryAreas = model.tributary_areas;
+        SlabQ.Clear();
+        foreach (SlabData s in model.slabs)
+        {
+            SlabQ[s.id] = new Vector2(s.qG, s.qQ);
+        }
+        Debug.Log($"ModelBuilder: {Nodes.Count} nodos, {ElementObjects.Count} " +
+                  $"elementos, {SlabObjects.Count} losas, {SupportObjects.Count} apoyos.");
+    }
+
+    private Transform MakeRow(string name)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(transform, false);
+        return go.transform;
+    }
+
+    public Vector3 NodePos(int tag)
+    {
+        NodeData n = Nodes.Find(x => x.tag == tag);
+        if (n == null) return Vector3.zero;
+        return CoordinateMap.OsToUnity(n.x, n.y, n.z);
+    }
+
+    public string LabelFor(int elementTag)
+    {
+        ElementData e = model.elements.Find(x => x.tag == elementTag);
+        return e != null ? $"{e.kind} tag={e.tag} [{e.i}|{e.j}] seccion={e.section}" : null;
+    }
+
+    public string SlabLabelFor(string slabId)
+    {
+        SlabData s = model.slabs.Find(x => x.id == slabId);
+        return s != null ? $"{s.id} qG={s.qG} qQ={s.qQ}" : null;
     }
 
     private void BuildNodes(Dictionary<int, NodeData> nodeIndex)
@@ -38,11 +85,13 @@ public class ModelBuilder : MonoBehaviour
             if (n == null) continue;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.name = $"Node_{n.tag}";
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(rowNodes, false);
             go.transform.position = CoordinateMap.OsToUnity(n.x, n.y, n.z);
             go.transform.localScale = Vector3.one * 0.18f;
             var r = go.GetComponent<Renderer>();
             r.material.color = new Color32(90, 90, 100, 255);
+            Nodes.Add(n);
+            NodeObjects.Add(go);
         }
     }
 
@@ -68,13 +117,19 @@ public class ModelBuilder : MonoBehaviour
             float radius = RadiusFor(e);
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             go.name = $"Element_{e.tag}";
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(rowElements, false);
             var view = go.AddComponent<ElementView>();
             view.Initialize(e.tag, e.i, e.j, e.kind, radius);
+            if (e.local_x != null && e.local_x.Count >= 3)
+            {
+                view.SetLocalX(CoordinateMap.OsToUnity(
+                    e.local_x[0], e.local_x[1], e.local_x[2]));
+            }
             Vector3 a = CoordinateMap.OsToUnity(ni.x, ni.y, ni.z);
             Vector3 b = CoordinateMap.OsToUnity(nj.x, nj.y, nj.z);
             view.SetEndpoints(a, b);
             go.GetComponent<Renderer>().material.color = ColorFor(e.kind);
+            ElementObjects.Add(go);
         }
     }
 
@@ -94,7 +149,7 @@ public class ModelBuilder : MonoBehaviour
             if (s == null || s.polygon == null || s.polygon.Count < 3) continue;
             float z = elev.TryGetValue(s.level, out float e) ? e : 0f;
             GameObject go = new GameObject($"Slab_{s.id}");
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(rowSlabs, false);
             var mf = go.AddComponent<MeshFilter>();
             var mr = go.AddComponent<MeshRenderer>();
             mf.mesh = SlabMesh(s.polygon, z);
@@ -102,6 +157,7 @@ public class ModelBuilder : MonoBehaviour
             {
                 color = new Color32(150, 165, 190, 120)
             };
+            SlabObjects.Add(go);
         }
     }
 
@@ -113,10 +169,11 @@ public class ModelBuilder : MonoBehaviour
             if (s == null || !nodeIndex.TryGetValue(s.node, out NodeData n)) continue;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = $"Support_{s.node}";
-            go.transform.SetParent(transform, false);
+            go.transform.SetParent(rowSupports, false);
             go.transform.position = CoordinateMap.OsToUnity(n.x, n.y, n.z) + Vector3.down * 0.1f;
             go.transform.localScale = Vector3.one * 0.35f;
             go.GetComponent<Renderer>().material.color = new Color32(210, 90, 60, 255);
+            SupportObjects.Add(go);
         }
     }
 
