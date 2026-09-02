@@ -29,6 +29,7 @@ public class ViewControls : MonoBehaviour
     private bool wallsOn = true;
     private bool supportsOn = true;
     private bool slabsOn = true;
+    private bool baseOn = true;
 
     private readonly Dictionary<int, Vector3> elementCenters = new Dictionary<int, Vector3>();
     private readonly Dictionary<int, string> elementKind = new Dictionary<int, string>();
@@ -46,6 +47,10 @@ public class ViewControls : MonoBehaviour
     {
         PreloadElementData();
         BuildArrowParts();
+        // Las "paredes" (muros) se dejan apagadas por defecto para que no saturen
+        // la vista; se activan con la tecla W.
+        FilterElements("wall", false);
+        wallsOn = false;
     }
 
     private void PreloadElementData()
@@ -85,6 +90,7 @@ public class ViewControls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.T)) { nodesOn = !nodesOn; SetGroup(modelBuilder.NodeObjects, nodesOn); }
         if (Input.GetKeyDown(KeyCode.S)) { supportsOn = !supportsOn; SetGroup(modelBuilder.SupportObjects, supportsOn); }
         if (Input.GetKeyDown(KeyCode.D)) { slabsOn = !slabsOn; SetGroup(modelBuilder.SlabObjects, slabsOn); }
+        if (Input.GetKeyDown(KeyCode.G)) { baseOn = !baseOn; SetGroup(modelBuilder.BasementObjects, baseOn); }
         if (Input.GetKeyDown(KeyCode.B)) { beamsOn = !beamsOn; FilterElements("beam", beamsOn); }
         if (Input.GetKeyDown(KeyCode.C)) { columnsOn = !columnsOn; FilterElements("column", columnsOn); }
         if (Input.GetKeyDown(KeyCode.W)) { wallsOn = !wallsOn; FilterElements("wall", wallsOn); }
@@ -107,6 +113,7 @@ public class ViewControls : MonoBehaviour
         GUILayout.Label("W  muros      [ON/OFF]", label);
         GUILayout.Label("S  apoyos     [ON/OFF]", label);
         GUILayout.Label("D  diafragmas [ON/OFF]", label);
+        GUILayout.Label("G  base solida [ON/OFF]", label);
         GUILayout.Label("I  IDs        [ON/OFF]", label);
         GUILayout.Label("L  ejes locales [ON/OFF]", label);
         GUILayout.Label("Ctrl+Click en un elemento = inspeccionar", label);

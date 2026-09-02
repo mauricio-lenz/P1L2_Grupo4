@@ -17,6 +17,7 @@ public class ModelBuilder : MonoBehaviour
     public List<GameObject> ElementObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> SupportObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> SlabObjects { get; private set; } = new List<GameObject>();
+    public List<GameObject> BasementObjects { get; private set; } = new List<GameObject>();
     public List<TributaryArea> TributaryAreas { get; private set; } = new List<TributaryArea>();
     public Dictionary<string, Vector2> SlabQ { get; private set; } = new Dictionary<string, Vector2>();
 
@@ -207,6 +208,7 @@ public class ModelBuilder : MonoBehaviour
         {
             color = new Color32(120, 90, 60, 220) // base solida marron
         };
+        BasementObjects.Add(mf.gameObject);
         SlabObjects.Add(mf.gameObject);
     }
 

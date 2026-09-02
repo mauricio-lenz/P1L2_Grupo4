@@ -34,13 +34,15 @@ def main():
     fig.patch.set_facecolor("#0f172a")
 
     for e in model["elements"]:
+        if e["kind"] == "wall":
+            continue  # sin "paredes": solo columnas + vigas + losas
         if e["i"] not in nodes or e["j"] not in nodes:
             continue
         a, b = nodes[e["i"]], nodes[e["j"]]
         col = KIND_COLOR.get(e["kind"], "#ffffff")
         lw = KIND_WIDTH.get(e["kind"], 1.0)
         ax.plot([a["x"], b["x"]], [a["y"], b["y"]], [a["z"], b["z"]],
-                color=col, linewidth=lw, alpha=0.85)
+                color=col, linewidth=lw, alpha=0.8)
 
     xs = [n["x"] for n in model["nodes"]]
     ys = [n["y"] for n in model["nodes"]]
@@ -96,7 +98,7 @@ def main():
     ax.view_init(elev=30, azim=-60)
 
     from matplotlib.lines import Line2D
-    legend = [Line2D([0], [0], color=c, lw=2, label=k) for k, c in KIND_COLOR.items()]
+    legend = [Line2D([0], [0], color=c, lw=2, label=k) for k, c in KIND_COLOR.items() if k != "wall"]
     legend += [Line2D([0], [0], color=LEVEL_COLOR[l], lw=8, alpha=0.6, label=f"Losa {l}")
                for l in ["S2", "S1", "P1", "P2", "P3", "A"]]
     ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="#1e293b", edgecolor="#475569", labelcolor="white")

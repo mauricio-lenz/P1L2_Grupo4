@@ -309,11 +309,25 @@ def main(out_path):
                     tag += 1
     elements.sort(key=lambda x: x["tag"])
 
-    # apoyos (base = nivel inferior S2), diafragmas y losas (una por nivel)
+    # apoyos (base = nivel inferior S2): solo donde hay columna o muro que nace/termina,
+    # para no dejar "bloques naranjos" en nodos huecos de la retícula.
     supports_lvl = LEVELS[0]["id"]
-    supports = [{"node": n["tag"], "ux": True, "uy": True, "uz": True,
+    sup_lvl_nodes = {n["tag"] for n in model_nodes if n["level"] == supports_lvl}
+    col_bases = {e["j"] for e in elements if e["kind"] == "column"} | \
+                {e["i"] for e in elements if e["kind"] == "column"}
+    wall_ends = {e["i"] for e in elements if e["kind"] == "wall"} | \
+                {e["j"] for e in elements if e["kind"] == "wall"}
+    # nodos base de columnas que estan en S2 (i del column) o extremos de muro en S2
+    supported = set()
+    for e in elements:
+        if e["kind"] == "column" and e["i"] in sup_lvl_nodes:
+            supported.add(e["i"])
+        elif e["kind"] == "wall" and e["i"] in sup_lvl_nodes:
+            supported.add(e["i"])
+            supported.add(e["j"])
+    supports = [{"node": n, "ux": True, "uy": True, "uz": True,
                  "rx": False, "ry": False, "rz": False}
-                for n in model_nodes if n["level"] == supports_lvl]
+                for n in supported]
     diaphragms = []
     for lev in range(1, len(LEVELS)):
         lv = LEVELS[lev]["id"]
