@@ -85,4 +85,8 @@ La losa **no** se modela con elementos finitos: la carga va a las vigas por áre
 
 ## 6. Si el profesor insiste en algo fuera de esto
 - **Cargas especiales** (SC=800, PM.ADIC.=2800, equipos puntuales 6700–13000 kg): están identificadas en `docs/planos_analysis.md` (notas) pero **no** incluidas en el modelo base; declarar que el modelo actual usa sobrecarga uniforme representativa y que las puntuales/zonas especiales son trabajo posterior si preguntan por un valor puntual exacto.
-- **N.O.G. por piso**: el modelo usa 3.5 m por piso (N0=0, P1=3.5, P2=7.0, P3=10.5). Confirmar contra el plano si preguntan por altura exacta de un nivel.
+- **N.O.G. por piso**: el modelo usa **3.5 m por piso** (N0=0, P1=3.5, P2=7.0, P3=10.5) como
+  **supuesto declarado del equipo**. El DXF no trae una cota de altura de piso legible en los
+  textos parseables (los valores negativos en los planos -100/-101 corresponden a fundaciones y
+  radier bajo N0=0). Si el profesor pide la altura exacta, se declara como supuesto a confirmar
+  contra el plano de cortes, no como dato extraído automáticamente.
