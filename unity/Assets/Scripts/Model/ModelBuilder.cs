@@ -16,6 +16,7 @@ public class ModelBuilder : MonoBehaviour
     public List<GameObject> NodeObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> ElementObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> SupportObjects { get; private set; } = new List<GameObject>();
+    public List<GameObject> SupportWallObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> SlabObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> BasementObjects { get; private set; } = new List<GameObject>();
     public List<TributaryArea> TributaryAreas { get; private set; } = new List<TributaryArea>();
@@ -115,12 +116,11 @@ public class ModelBuilder : MonoBehaviour
                     $"Element {e.tag} referencia nodo inexistente: {e.i} o {e.j}");
             }
 
-            float radius = RadiusFor(e);
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.name = $"Element_{e.tag}";
             go.transform.SetParent(rowElements, false);
             var view = go.AddComponent<ElementView>();
-            view.Initialize(e.tag, e.i, e.j, e.kind, radius);
+            view.Initialize(e.tag, e.i, e.j, e.kind, RadiusFor(e));
             if (e.local_x != null && e.local_x.Count >= 3)
             {
                 view.SetLocalX(CoordinateMap.OsToUnity(
@@ -254,16 +254,25 @@ public class ModelBuilder : MonoBehaviour
     private void BuildSupports(Dictionary<int, NodeData> nodeIndex)
     {
         if (model.supports == null) return;
+        // nodos que son extremo de muro (para agrupar apoyos de muro con la tecla W)
+        var wallNodes = new System.Collections.Generic.HashSet<int>();
+        foreach (ElementData e in model.elements)
+        {
+            if (e.kind == "wall") { wallNodes.Add(e.i); wallNodes.Add(e.j); }
+        }
         foreach (SupportData s in model.supports)
         {
             if (s == null || !nodeIndex.TryGetValue(s.node, out NodeData n)) continue;
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = $"Support_{s.node}";
+            bool isWall = wallNodes.Contains(s.node);
+            go.name = (isWall ? "Support_wall_" : "Support_col_") + s.node;
             go.transform.SetParent(rowSupports, false);
             go.transform.position = CoordinateMap.OsToUnity(n.x, n.y, n.z) + Vector3.down * 0.1f;
             go.transform.localScale = Vector3.one * 0.35f;
-            go.GetComponent<Renderer>().material.color = new Color32(210, 90, 60, 255);
+            go.GetComponent<Renderer>().material.color =
+                isWall ? new Color32(160, 120, 90, 255) : new Color32(210, 90, 60, 255);
             SupportObjects.Add(go);
+            if (isWall) SupportWallObjects.Add(go);
         }
     }
 

@@ -41,6 +41,16 @@ public class TributaryArea
 }
 
 [Serializable]
+public class SectionData
+{
+    public string id;
+    public string shape;
+    public float b;
+    public float h;
+    public string material;
+}
+
+[Serializable]
 public class SupportData
 {
     public int node;
@@ -79,6 +89,7 @@ public class ModelData
     public List<SlabData> slabs;
     public List<LevelData> levels;
     public List<TributaryArea> tributary_areas;
+    public List<SectionData> sections;
 }
 
 public static class ModelDataLoader

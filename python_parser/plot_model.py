@@ -8,13 +8,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
-KIND_COLOR = {"column": "#3b82f6", "beam": "#eab308", "wall": "#8b5cf6"}
-KIND_WIDTH = {"column": 2.5, "beam": 1.0, "wall": 1.8}
-SLAB_ALPHA = 0.35
+# Colores apagados (poca saturacion) para no cansar la vista.
+KIND_COLOR = {"column": "#8899bb", "beam": "#cfd8a0", "wall": "#b49ad0"}
+KIND_WIDTH = {"column": 2.2, "beam": 1.0, "wall": 1.5}
+SLAB_ALPHA = 0.30
 # Subterraneos se dibujan como masa solida (base), niveles superiores como losas.
 BASEMENT_LEVELS = {"S1", "S2"}
-LEVEL_COLOR = {"S2": "#92400e", "S1": "#b45309", "P1": "#60a5fa",
-               "P2": "#22c55e", "P3": "#f59e0b", "A": "#f472b6"}
+LEVEL_COLOR = {"S2": "#b08968", "S1": "#c19a6b", "P1": "#9fb8d9",
+               "P2": "#a3c9a5", "P3": "#e0c287", "A": "#d4a6c3"}
 
 
 def main():

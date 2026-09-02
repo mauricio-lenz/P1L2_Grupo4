@@ -48,8 +48,9 @@ public class ViewControls : MonoBehaviour
         PreloadElementData();
         BuildArrowParts();
         // Las "paredes" (muros) se dejan apagadas por defecto para que no saturen
-        // la vista; se activan con la tecla W.
+        // la vista; se activan con la tecla W (y sus apoyos asociados van con ellas).
         FilterElements("wall", false);
+        SetGroup(modelBuilder.SupportWallObjects, false);
         wallsOn = false;
     }
 
@@ -93,7 +94,12 @@ public class ViewControls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G)) { baseOn = !baseOn; SetGroup(modelBuilder.BasementObjects, baseOn); }
         if (Input.GetKeyDown(KeyCode.B)) { beamsOn = !beamsOn; FilterElements("beam", beamsOn); }
         if (Input.GetKeyDown(KeyCode.C)) { columnsOn = !columnsOn; FilterElements("column", columnsOn); }
-        if (Input.GetKeyDown(KeyCode.W)) { wallsOn = !wallsOn; FilterElements("wall", wallsOn); }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            wallsOn = !wallsOn;
+            FilterElements("wall", wallsOn);
+            SetGroup(modelBuilder.SupportWallObjects, wallsOn);
+        }
         if (Input.GetKeyDown(KeyCode.I)) { ShowIds = !ShowIds; }
         if (Input.GetKeyDown(KeyCode.L)) { ShowLocalAxes = !ShowLocalAxes; BuildArrowParts(); }
     }
