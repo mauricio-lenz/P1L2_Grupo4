@@ -14,12 +14,11 @@ Modelo estructural digital 3D del edificio de Ingeniería: OpenSees (análisis) 
   ```
 
 ## Unity
-- **Versión fijada:** Unity 6 (`6000.0.32f1`, ver `unity/ProjectSettings/ProjectVersion.txt`).
+- **Versión fijada:** Unity 6 (`6000.5.10f1`, ver `unity/ProjectSettings/ProjectVersion.txt`).
   No actualizar de versión durante el proyecto.
-- Proyecto en `unity/` (Assets + Packages + ProjectSettings).
+- Proyecto en `unity/` (Assets + Packages + ProjectSettings). Escena principal `Assets/Scenes/Main.unity`.
 - Única conversión de coordenadas: `CoordinateMap` (`OS (x,y,z) → Unity (x,z,y)`).
-- Viewer: `ModelBuilder` (leer `data/model_data.json` desde un TextAsset → nodos, elementos
-  centrelines, losas, apoyos). Para usarlo: copiar `data/model_data.json` a
-  `unity/Assets/` (Unity lo importa como TextAsset) y asignarlo a `ModelBuilder`.
+- Viewer: `ModelBuilder` (lee el TextAsset `Assets/Data/model_data.json` → nodos, elementos
+  centrelines, losas, apoyos). El snapshot se refresca con `copy_data_to_unity.ps1`.
   Navegación: `FreeFlyCamera` (WASD, clic derecho).
 - Tests EditMode de `CoordinateMap`: Window > General > Test Runner.

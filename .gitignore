@@ -26,6 +26,9 @@ venv/
 !data/model_data.json
 !python_parser/tests/fixtures/stub_model.json
 !unity/Packages/manifest.json
+!unity/Assets/Data/model_data.json
+# El contrato en unity/Assets/Data es un snapshot del principal (data/model_data.json);
+# refrescar copiando desde data/ (script copy_data_to_unity.ps1)
 
 
 # DXF generados (conversión DWG -> DXF vía ODA). Solo se versionan los planos clave

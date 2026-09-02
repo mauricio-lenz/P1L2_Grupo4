@@ -44,13 +44,13 @@ Convención: eje de elevación Z. Un solo sistema de unidades en todo el reposit
 - Solo se versionan los planos clave listados en .gitignore.
 
 # Unity
-- Versión fijada: Unity 6 (6000.0.32f1), registrada en README.md y
+- Versión fijada: Unity 6 (6000.5.10f1), registrada en README.md y
   unity/ProjectSettings/ProjectVersion.txt. No cambiar de versión en mitad del proyecto.
 - Proyecto del viewer en unity/ (Assets/, Packages/, ProjectSettings/).
 - Única conversión de coordenadas: CoordinateMap (OS (x,y,z) -> Unity (x,z,y)); todas las
   coordenadas deben pasar por ella.
-- El viewer lee directo data/model_data.json (TextAsset) vía ModelBuilder; la escena Unity
-  NO es fuente de verdad: el modelo se reconstruye desde los datos.
+- El viewer lee el snapshot unity/Assets/Data/model_data.json (TextAsset) vía ModelBuilder;
+  refrescar con copy_data_to_unity.ps1. La escena Unity NO es fuente de verdad.
 
 # Workflow
 - Plan -> Build -> Test -> Review -> Merge.
