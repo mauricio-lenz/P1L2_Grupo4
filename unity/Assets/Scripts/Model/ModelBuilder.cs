@@ -159,6 +159,94 @@ public class ModelBuilder : MonoBehaviour
             };
             SlabObjects.Add(go);
         }
+        BuildBasementBox(elev);
+    }
+
+    /// <summary>
+    /// Dibuja la masa solida de los subterraneos: un prisma (cajon) desde la cota
+    /// mas baja del modelo hasta la cota superior del ultimo subterraneo (S1), usando
+    /// el contorno de la mayor losa subterranea para que abrace toda la proyeccion.
+    /// </summary>
+    private void BuildBasementBox(Dictionary<string, float> elev)
+    {
+        if (model.slabs == null || model.levels == null) return;
+        var basementLevels = new List<string>();
+        foreach (LevelData l in model.levels)
+        {
+            if (l.elevation < 0f) basementLevels.Add(l.id);
+        }
+        if (basementLevels.Count == 0) return;
+
+        // cota superior e inferior del cajon (S1 arriba, la mas baja abajo)
+        float top = float.NegativeInfinity, bottom = float.PositiveInfinity;
+        foreach (var lv in basementLevels)
+        {
+            float v = elev.ContainsKey(lv) ? elev[lv] : 0f;
+            if (v > top) top = v;
+            if (v < bottom) bottom = v;
+        }
+        // Si no hay dos cotas o el superior resta 0, caer un poco extra.
+        if (top <= bottom) top = bottom + 3.0f;
+
+        // contorno mayor de las losas subterraneas
+        List<List<float>> contour = null;
+        float maxArea = 0f;
+        foreach (SlabData s in model.slabs)
+        {
+            if (!basementLevels.Contains(s.level) || s.polygon == null) continue;
+            float a = PolygonArea(s.polygon);
+            if (a > maxArea) { maxArea = a; contour = s.polygon; }
+        }
+        if (contour == null) return;
+
+        var mf = new GameObject("BasementBox").AddComponent<MeshFilter>();
+        mf.transform.SetParent(rowSlabs, false);
+        mf.GetComponent<MeshFilter>().sharedMesh = PrismMesh(contour, bottom - 0.5f, top);
+        var mr = mf.gameObject.AddComponent<MeshRenderer>();
+        mr.material = new Material(Shader.Find("Standard"))
+        {
+            color = new Color32(120, 90, 60, 220) // base solida marron
+        };
+        SlabObjects.Add(mf.gameObject);
+    }
+
+    private static float PolygonArea(List<List<float>> poly)
+    {
+        float a = 0f;
+        for (int k = 0; k < poly.Count; k++)
+        {
+            var p = poly[k];
+            var q = poly[(k + 1) % poly.Count];
+            a += p[0] * q[1] - q[0] * p[1];
+        }
+        return Mathf.Abs(a) / 2f;
+    }
+
+    /// <summary>Prisma con base = contorno (poligono) entre cotas z0 y z1.</summary>
+    private static Mesh PrismMesh(List<List<float>> poly, float z0, float z1)
+    {
+        int n = poly.Count;
+        var verts = new Vector3[2 * n];
+        for (int k = 0; k < n; k++)
+        {
+            verts[k] = CoordinateMap.OsToUnity(poly[k][0], poly[k][1], z0);
+            verts[n + k] = CoordinateMap.OsToUnity(poly[k][0], poly[k][1], z1);
+        }
+        var tris = new List<int>();
+        for (int k = 1; k < n - 1; k++)
+        {
+            tris.Add(0); tris.Add(k); tris.Add(k + 1);           // base
+            tris.Add(0); tris.Add(n + k + 1); tris.Add(n + k);   // tapa (invertida)
+        }
+        for (int k = 0; k < n; k++)
+        {
+            int k2 = (k + 1) % n;
+            tris.Add(k); tris.Add(n + k); tris.Add(n + k2);
+            tris.Add(k); tris.Add(n + k2); tris.Add(k2);
+        }
+        var m = new Mesh { vertices = verts, triangles = tris.ToArray() };
+        m.RecalculateNormals();
+        return m;
     }
 
     private void BuildSupports(Dictionary<int, NodeData> nodeIndex)
