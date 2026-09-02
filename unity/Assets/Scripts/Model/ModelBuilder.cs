@@ -81,17 +81,26 @@ public class ModelBuilder : MonoBehaviour
     private void BuildSlabs()
     {
         if (model.slabs == null) return;
+        var elev = new Dictionary<string, float>();
+        if (model.levels != null)
+        {
+            foreach (LevelData l in model.levels)
+            {
+                if (l != null) elev[l.id] = l.elevation;
+            }
+        }
         foreach (SlabData s in model.slabs)
         {
             if (s == null || s.polygon == null || s.polygon.Count < 3) continue;
+            float z = elev.TryGetValue(s.level, out float e) ? e : 0f;
             GameObject go = new GameObject($"Slab_{s.id}");
             go.transform.SetParent(transform, false);
             var mf = go.AddComponent<MeshFilter>();
             var mr = go.AddComponent<MeshRenderer>();
-            mf.mesh = SlabMesh(s.polygon);
+            mf.mesh = SlabMesh(s.polygon, z);
             mr.material = new Material(Shader.Find("Standard"))
             {
-                color = new Color32(150, 165, 190, 90)
+                color = new Color32(150, 165, 190, 120)
             };
         }
     }
@@ -111,12 +120,12 @@ public class ModelBuilder : MonoBehaviour
         }
     }
 
-    private static Mesh SlabMesh(System.Collections.Generic.List<System.Collections.Generic.List<float>> poly)
+    private static Mesh SlabMesh(System.Collections.Generic.List<System.Collections.Generic.List<float>> poly, float z)
     {
         var verts = new Vector3[poly.Count];
         for (int k = 0; k < poly.Count; k++)
         {
-            verts[k] = CoordinateMap.OsToUnity(poly[k][0], poly[k][1], 0f);
+            verts[k] = CoordinateMap.OsToUnity(poly[k][0], poly[k][1], z);
         }
         var tris = new int[3 * (poly.Count - 2)];
         int t = 0;
