@@ -43,6 +43,7 @@ batch con `SceneWizard.BuildMain` (`Assets/Editor/SceneWizard.cs`).
 - Tests EditMode de `CoordinateMap`: Window > General > Test Runner.
 
 ## Demo sugerida (evalua en vivo)
+Guía completa con respuestas modelo: **`docs/guia_demo_grupo4.md`**.
 1. Abrir `Assets/Scenes/Main.unity` → Play: se ve el edificio completo (columnas azules, vigas
    amarillas, muros violetas, losas translúcidas a su cota, apoyos rojos).
 2. Probar toggles `B/C/W/S/T/D` para aislar un tipo de elemento.
