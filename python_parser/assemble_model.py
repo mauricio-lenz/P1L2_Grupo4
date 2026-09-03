@@ -51,15 +51,9 @@ PLANS = [
     ("cad_files/dxf/2017_67/2017_67-103.dxf", [5], 2),        # Azotea (techo sobre P3)
 ]
 
-# VOLADIZOS de losa por nivel (m extendidos mas alla de la retícula de columnas).
-# Medidos comparando la huella real de losa (RLE-LOSA, docs/planos_analysis.md) contra
-# la ultima columna de soporte de cada lado. Solo los niveles superiores presentan
-# voladizo lateral (derecho) y de fondo.
-CANTILEVER = {
-    "P2": {"xmax": 2.45, "ymax": 0.94},
-    "P3": {"xmax": 2.45, "ymax": 0.94},
-    "A":  {"xmax": 1.13, "ymax": 1.00},
-}
+# VOLADIZOS: NO existen. La losa no sobresale de la retícula de columnas en los
+# planos; el intento previo de extender la losa con CANTILEVER generó voladizos
+# inexistentes y diagonales falsas en el frame implícito. Se retira por completo.
 
 P_COL = re.compile(r"(\d+)\s*[xX]\s*(\d+)")
 P_BEAM = re.compile(r"(\d+)\s*/\s*(\d+)")
@@ -184,55 +178,6 @@ def build_floor(path, lev):
             if evw:
                 spans.append(("wall", xi, yj, xi, yj + 1))
 
-    # ===== VOLADIZOS de losa en niveles superiores =====
-    # La losa sobresale de la retícula de columnas en el lateral derecho (xmax) y el
-    # fondo (ymax). Se añaden nodos de borde, vigas de voladizo desde la última
-    # columna de soporte y la viga de continuidad del nuevo borde. Las áreas
-    # tributarias se generan después sobre la retícula ampliada (incluye los paños
-    # del voladizo), y la losa usa [min,max] de xs/ys, así que el voladizo queda
-    # cubierto sin tocar la estructur a interior.
-    level_id = LEVELS[lev]["id"]
-    cv = CANTILEVER.get(level_id)
-    if cv:
-        # --- voladizo lateral derecho (xmax): extiende xs ---
-        if cv.get("xmax"):
-            xnew = xs[-1] + cv["xmax"]
-            xs.append(xnew)
-            xi_new = len(xs) - 1
-            edge_rows = {}
-            for yj in range(len(ys)):
-                cols_row = [kx for (kx, ky) in col_nodes if ky == yj]
-                if not cols_row:
-                    continue
-                edge_rows[yj] = max(cols_row)
-            for yj, xi_col in edge_rows.items():
-                spans.append(("beam", xi_col, yj, xi_new, yj))
-                end_nodes.add((xi_new, yj))
-            er = sorted(edge_rows)
-            for a, b in zip(er, er[1:]):
-                spans.append(("beam", xi_new, a, xi_new, b))
-                end_nodes.add((xi_new, a))
-                end_nodes.add((xi_new, b))
-        # --- voladizo de fondo (ymax): extiende ys ---
-        if cv.get("ymax"):
-            ynew = ys[-1] + cv["ymax"]
-            ys.append(ynew)
-            yj_new = len(ys) - 1
-            edge_cols = {}
-            for xi in range(len(xs)):
-                cols_col = [ky for (kx, ky) in col_nodes if kx == xi]
-                if not cols_col:
-                    continue
-                edge_cols[xi] = max(cols_col)
-            for xi, yj_col in edge_cols.items():
-                spans.append(("beam", xi, yj_col, xi, yj_new))
-                end_nodes.add((xi, yj_new))
-            ec = sorted(edge_cols)
-            for a, b in zip(ec, ec[1:]):
-                spans.append(("beam", a, yj_new, b, yj_new))
-                end_nodes.add((a, yj_new))
-                end_nodes.add((b, yj_new))
-
     used = set(col_nodes)
     for (k, x0, y0, x1, y1) in spans:
         used.add((x0, y0))
@@ -321,10 +266,13 @@ def main(out_path):
                                 "z": LEVELS[bid]["elevation"], "level": LEVELS[bid]["id"]}
     model_nodes = [node_map[k] for k in sorted(node_map)]
 
-    # vigas implícitas de marco: en cada fila/columna de la retícula, los nodos
-    # consecutivos (columna o extremo) se conectan con viga si no hay viga/muro por
-    # evidencia. Mejora la transferencia de carga en pisos con poca evidencia escrita
-    # (p. ej. -102: 2 -> ~50 vigas) y completa la grilla de pórticos del stub.
+    # vigas implícitas de marco: en cada nivel, conectar nodos del MISMO nivel que
+    # comparten una línea recta exacta (misma coordenada Y -> horizontal; misma
+    # coordenada X -> vertical) y que son CONSECUTIVOS (sin otro nodo intermedio entre
+    # ellos), SOLO si no hay viga/muro por evidencia. La agrupación se hace por
+    # coordenada real (no por índice de tag) y se verifica que el tramo sea recto y sin
+    # nodos entre medias, de modo que NUNCA se generan diagonales ni tramos cruzados.
+    # Completa la grilla de pórticos del stub sin inventar vigas inexistentes.
     occupied = set()
     for e in elements:
         if e["kind"] in ("beam", "wall"):
@@ -336,35 +284,56 @@ def main(out_path):
             if lev == 0:
                 continue
             lvl = LEVELS[lev]["id"]
-            nodes_lvl = {tag_id: n for tag_id, n in node_map.items() if n["level"] == lvl}
-            rows = {}
-            cols = {}
-            for tag_id, n in nodes_lvl.items():
-                xi, yj = (tag_id % 1_000_000) // 1000, tag_id % 1000
-                rows.setdefault(yj, []).append((xi, tag_id))
-                cols.setdefault(xi, []).append((yj, tag_id))
-            candidates = []
-            for yj, lst in rows.items():
+            nodes_lvl = [(tag_id, n["x"], n["y"])
+                         for tag_id, n in node_map.items() if n["level"] == lvl]
+            rows = {}  # y exacta -> [(x, tag)]
+            cols = {}  # x exacta -> [(y, tag)]
+            for tid, x, y in nodes_lvl:
+                rows.setdefault(round(y, 6), []).append((x, tid))
+                cols.setdefault(round(x, 6), []).append((y, tid))
+            for lst in rows.values():
                 lst.sort()
-                for (_, i), (_, j) in zip(lst, lst[1:]):
-                    candidates.append((i, j))
-            for xi, lst in cols.items():
-                lst.sort()
-                for (_, i), (_, j) in zip(lst, lst[1:]):
-                    candidates.append((i, j))
-            for (i, j) in candidates:
-                if (i, j) not in occupied:
-                    ni, nj = node_map[i], node_map[j]
+                for (xa, ia), (xb, ib) in zip(lst, lst[1:]):
+                    # tramo horizontal real y sin nodos intermedios
+                    if abs(xa - xb) < 0.01:
+                        continue
+                    if any(xa < xm < xb for xm, _ in lst):
+                        continue
+                    if (ia, ib) in occupied:
+                        continue
+                    ni, nj = node_map[ia], node_map[ib]
                     xm = 0.5 * (ni["x"] + nj["x"])
                     ym = 0.5 * (ni["y"] + nj["y"])
                     b, h = fl["dims_for"]("beam", (xm, ym))
                     elements.append({"tag": tag, "kind": "beam",
-                                     "i": i, "j": j,
+                                     "i": ia, "j": ib,
                                      "section": sec_id("beam", b, h),
                                      "level": lvl,
                                      "local_x": [1.0, 0.0, 0.0]})
-                    occupied.add((i, j))
-                    occupied.add((j, i))
+                    occupied.add((ia, ib))
+                    occupied.add((ib, ia))
+                    tag += 1
+            for lst in cols.values():
+                lst.sort()
+                for (ya, ia), (yb, ib) in zip(lst, lst[1:]):
+                    # tramo vertical real y sin nodos intermedios
+                    if abs(ya - yb) < 0.01:
+                        continue
+                    if any(ya < ym < yb for ym, _ in lst):
+                        continue
+                    if (ia, ib) in occupied:
+                        continue
+                    ni, nj = node_map[ia], node_map[ib]
+                    xm = 0.5 * (ni["x"] + nj["x"])
+                    ym = 0.5 * (ni["y"] + nj["y"])
+                    b, h = fl["dims_for"]("beam", (xm, ym))
+                    elements.append({"tag": tag, "kind": "beam",
+                                     "i": ia, "j": ib,
+                                     "section": sec_id("beam", b, h),
+                                     "level": lvl,
+                                     "local_x": [1.0, 0.0, 0.0]})
+                    occupied.add((ia, ib))
+                    occupied.add((ib, ia))
                     tag += 1
     elements.sort(key=lambda x: x["tag"])
 

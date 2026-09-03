@@ -39,18 +39,15 @@ empalman sin transformación. Ver archivo_inventory.txt para catálogo completo.
 ## Decisiones de modelado
 - Losas NO se modelan con FE; se transfieren por áreas tributarias (triángulo por paño,
   igual geometría para G y Q) — regla ya codificada y verificada en la fase 1.
-- **Voladizos de losa**: la losa real (extractada de `RLE-LOSA`) sobresale de la retícula
-  de columnas en los niveles superiores. Medido contra la última columna de soporte:
-  - P2/P3: voladizo lateral derecho ≈ 2.45 m y de fondo ≈ 0.94 m (área 2828 → 3016 m²).
-  - Azotea: voladizo lateral derecho ≈ 1.13 m y de fondo ≈ 1.00 m (área 1016 → 1090 m²).
-  Se añaden nodos de borde, vigas de voladizo (desde la última columna) y viga de
-  continuidad del borde; los paños de voladizo descargan en esas vigas (tabla
-  `CANTILEVER` en `assemble_model.py`). Verificado: 5 checks OK tras regenerar.
-- Vigas implícitas de marco: si dos nodos consecutivos (columna/extremo) de una misma fila o
-  columna de la retícula no tienen viga/muro por evidencia escrita, se asume viga (convención
-  de pórtico de hormigón). Necesario porque la evidencia escrita es escasa en -102
-  (detección por capa RLE-VIGA dio 2 vigas en P2) y la transferencia de carga quedaría
-  concentrada en muy pocas vigas. Resultado actual: P1 143 + 8 muros, P2 104, P3 48 vigas.
+- **NO hay voladizos**: las losas no sobresalen de la retícula de columnas. Una medición
+  previa contra `RLE-LOSA` sugirió voladizos en P2/P3 y azotea, pero al rectificar contra
+  los planos resultaron **inexistentes**; se retiró la tabla `CANTILEVER` por completo.
+- Vigas implícitas de marco: solo se conectan nodos del MISMO nivel que comparten una
+  línea recta exacta (misma X o misma Y) y que son consecutivos (sin nodo intermedio),
+  y únicamente si no hay viga/muro por evidencia. La agrupación es por coordenada real,
+  no por índice de tag, con lo que **nunca se generan diagonales** ni tramos cruzados
+  (bug corregido). Completa la grilla de pórticos donde la evidencia escrita es escasa
+  (p. ej. -102). Verificado: 0 diagonales en el modelo.
 - q_G real proviene de la hoja de cargas (2017_67-700) + ETG; pendiente de extraer valores.
 - Los niveles/secciones reales se asignan por lámina; verificación diaria con
   `python python_parser/verifications.py data/model_data.json`.
