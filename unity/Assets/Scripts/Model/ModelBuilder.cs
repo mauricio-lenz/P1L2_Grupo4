@@ -12,6 +12,12 @@ public class ModelBuilder : MonoBehaviour
 
     private ModelData model;
 
+    /// <summary>Modelo completo del contrato (acceso de solo lectura para otros scripts).</summary>
+    public ModelData Model => model;
+
+    /// <summary>Elevación (m, OS) de cada nivel por id.</summary>
+    public Dictionary<string, float> LevelElevations { get; private set; } = new Dictionary<string, float>();
+
     public List<NodeData> Nodes { get; private set; } = new List<NodeData>();
     public List<GameObject> NodeObjects { get; private set; } = new List<GameObject>();
     public List<GameObject> ElementObjects { get; private set; } = new List<GameObject>();
@@ -34,6 +40,11 @@ public class ModelBuilder : MonoBehaviour
         model = ModelDataLoader.Load(modelJson);
         var nodeIndex = ModelDataLoader.BuildNodeIndex(model);
         var elementTags = new System.Collections.Generic.HashSet<int>();
+
+        LevelElevations.Clear();
+        if (model.levels != null)
+            foreach (LevelData l in model.levels)
+                if (l != null) LevelElevations[l.id] = l.elevation;
 
         rowNodes = MakeRow("Row_Nodes");
         rowElements = MakeRow("Row_Elements");
@@ -156,7 +167,7 @@ public class ModelBuilder : MonoBehaviour
             mf.mesh = SlabMesh(s.polygon, z);
             mr.material = new Material(Shader.Find("Standard"))
             {
-                color = new Color32(150, 165, 190, 120)
+                color = new Color32(150, 210, 130, 220) // losa verde claro
             };
             SlabObjects.Add(go);
         }
@@ -311,9 +322,9 @@ public class ModelBuilder : MonoBehaviour
     {
         switch (kind)
         {
-            case "column": return new Color32(70, 130, 180, 255);
-            case "beam": return new Color32(220, 200, 90, 255);
-            case "wall": return new Color32(140, 90, 190, 255);
+            case "column": return new Color32(190, 60, 50, 255);   // rojo (pilares)
+            case "beam": return new Color32(70, 120, 210, 255);    // azul (vigas)
+            case "wall": return new Color32(120, 120, 130, 255);   // gris neutro (muros)
             default: return new Color32(180, 180, 180, 255);
         }
     }

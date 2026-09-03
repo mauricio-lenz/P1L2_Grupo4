@@ -54,6 +54,7 @@ public static class SceneWizard
         }
         app.AddComponent<ViewControls>();
         app.AddComponent<TributaryInspector>();
+        app.AddComponent<ExplodedView>();
 
         EditorSceneManager.SaveScene(scene, scenesDir + "/Main.unity");
         Debug.Log("SceneWizard: Assets/Scenes/Main.unity guardada.");

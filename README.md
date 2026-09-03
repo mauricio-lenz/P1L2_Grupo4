@@ -25,7 +25,8 @@ Modelo estructural digital 3D del edificio de Ingeniería: OpenSees (análisis) 
 ### Controles del viewer (en Play)
 | Tecla | Acción |
 |-------|--------|
-| `WASD` / `Q` / `E` | Navegar (Q/E bajar/subes, Shift = rápido) |
+| `WASD` / `Q` / `E` | Navegar (Q/E bajar/subir, Shift = rápido) |
+| `X` | Alternar **vista explotada** (separar pisos en vertical, axonométrica) |
 | `T` | Alternar nodos |
 | `B` | Alternar vigas |
 | `C` | Alternar columnas |
@@ -36,6 +37,22 @@ Modelo estructural digital 3D del edificio de Ingeniería: OpenSees (análisis) 
 | `L` | Mostrar/ocultar ejes locales (flechas magenta) |
 | `Ctrl` + clic | **Tributary Area Inspector**: muestra las áreas tributarias de la viga, su área total y los kN de losa que recibe (casos G y Q) |
 
+### Vista explotada (maqueta estructural técnica)
+`Assets/Scripts/View/ExplodedView.cs` convierte la visualización en una **vista axonométrica
+explotada**: cámara ortográfica en ángulo isométrico (fachada + lateral) y cada piso separado
+verticalmente con un desplazamiento `floorIndex * explodedOffset * amount` (solo en Y; X/Z sin
+cambios). Los colores son planos y legibles: **losas verde claro, vigas azul, pilares rojo**,
+base sólida de subterráneos marrón, fondo neutro.
+
+Controles desde el Inspector (componente `ExplodedView` en el GameObject `App`):
+- `explodedOffset`: separación (m) entre pisos consecutivos (por defecto `1.5`).
+- `amount`: 0 = ensamblado, 1 = totalmente explotado (deslizador).
+- `manageCamera`: activa el encuadre automático axonométrico.
+
+API: `SetExplodedView(bool)` y `SetExplodedView(float amount)` con transición suave
+(`SmoothStep`); al volver a `amount = 0` todo regresa a su posición estructural original sin
+reconstruir el modelo. Tecla `X` lo alterna en vivo.
+
 Implementación: `Assets/Scripts/Interaction/ViewControls.cs` (toggles/IDs/ejes locales) y
 `Assets/Scripts/Interaction/TributaryInspector.cs` (inspección). La escena se regenera en modo
 batch con `SceneWizard.BuildMain` (`Assets/Editor/SceneWizard.cs`).
@@ -44,10 +61,11 @@ batch con `SceneWizard.BuildMain` (`Assets/Editor/SceneWizard.cs`).
 
 ## Demo sugerida (evalua en vivo)
 Guía completa con respuestas modelo: **`docs/guia_demo_grupo4.md`**.
-1. Abrir `Assets/Scenes/Main.unity` → Play: se ve el edificio completo (columnas azules, vigas
-   amarillas, muros violetas, losas translúcidas a su cota, apoyos rojos).
-2. Probar toggles `B/C/W/S/T/D` para aislar un tipo de elemento.
-3. `I` para ver los `elementTag` de cada barra; `L` para su eje local.
+1. Abrir `Assets/Scenes/Main.unity` → Play: se ve el edificio en **vista explotada**
+   axonométrica (losas verde claro, vigas azules, pilares rojos, base de subterráneos marrón).
+2. `X` para alternar entre vista ensamblada y explotada.
+3. Probar toggles `B/C/W/S/T/D` para aislar un tipo de elemento.
+4. `I` para ver los `elementTag` de cada barra; `L` para su eje local.
 4. `Ctrl+clic` en una viga del plano → leer en el Inspector su área tributaria y los kN de losa Q/G.
 5. Verificaciones (desde la raíz):
    ```

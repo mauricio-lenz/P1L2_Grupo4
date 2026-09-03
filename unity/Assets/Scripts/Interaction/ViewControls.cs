@@ -19,6 +19,8 @@ public class ViewControls : MonoBehaviour
     [SerializeField] private ModelBuilder modelBuilder;
     [SerializeField] private GUISkin skin;
 
+    private ExplodedView explodedView;
+
     public bool ShowIds { get; private set; }
     public bool ShowLocalAxes { get; private set; }
 
@@ -31,8 +33,6 @@ public class ViewControls : MonoBehaviour
     private bool slabsOn = true;
     private bool baseOn = true;
 
-    private readonly Dictionary<int, Vector3> elementCenters = new Dictionary<int, Vector3>();
-    private readonly Dictionary<int, string> elementKind = new Dictionary<int, string>();
     private readonly Dictionary<int, Vector3> elementAxis = new Dictionary<int, Vector3>();
 
     private GameObject elementArrowCube;
@@ -41,6 +41,7 @@ public class ViewControls : MonoBehaviour
     private void Awake()
     {
         if (modelBuilder == null) modelBuilder = GetComponent<ModelBuilder>();
+        explodedView = GetComponent<ExplodedView>();
     }
 
     private void Start()
@@ -62,8 +63,6 @@ public class ViewControls : MonoBehaviour
             if (view == null) continue;
             Vector3 a = modelBuilder.NodePos(view.NodeI);
             Vector3 b = modelBuilder.NodePos(view.NodeJ);
-            elementCenters[view.ElementTag] = 0.5f * (a + b);
-            elementKind[view.ElementTag] = view.Kind;
             elementAxis[view.ElementTag] = view.LocalX.sqrMagnitude > 0.0001f
                 ? view.LocalX : (b - a).normalized;
         }
@@ -84,7 +83,7 @@ public class ViewControls : MonoBehaviour
 
     private void Update()
     {
-        if (elementCenters.Count == 0 && modelBuilder.ElementObjects.Count > 0)
+        if (elementAxis.Count == 0 && modelBuilder.ElementObjects.Count > 0)
         {
             PreloadElementData();
         }
@@ -102,6 +101,10 @@ public class ViewControls : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.I)) { ShowIds = !ShowIds; }
         if (Input.GetKeyDown(KeyCode.L)) { ShowLocalAxes = !ShowLocalAxes; BuildArrowParts(); }
+        if (explodedView != null && Input.GetKeyDown(KeyCode.X))
+        {
+            explodedView.SetExplodedView(explodedView.CurrentAmount < 0.5f);
+        }
     }
 
     private void OnGUI()
@@ -111,8 +114,9 @@ public class ViewControls : MonoBehaviour
         label.alignment = TextAnchor.MiddleLeft;
         box.normal.background = MakeTex(2, 2, new Color(0.05f, 0.06f, 0.10f, 0.75f));
 
-        GUILayout.BeginArea(new Rect(12, 12, 300, 205), box);
+        GUILayout.BeginArea(new Rect(12, 12, 300, 235), box);
         GUILayout.Label("CONTROLES (vivo)", label);
+        GUILayout.Label("X  vista explotada [ON/OFF]", label);
         GUILayout.Label("T  nodos      [ON/OFF]", label);
         GUILayout.Label("B  vigas      [ON/OFF]", label);
         GUILayout.Label("C  columnas   [ON/OFF]", label);
@@ -122,7 +126,8 @@ public class ViewControls : MonoBehaviour
         GUILayout.Label("G  base solida [ON/OFF]", label);
         GUILayout.Label("I  IDs        [ON/OFF]", label);
         GUILayout.Label("L  ejes locales [ON/OFF]", label);
-        GUILayout.Label("Ctrl+Click en un elemento = inspeccionar", label);
+        GUILayout.Label("Ctrl+Click = inspeccionar elemento", label);
+        GUILayout.Label("Losas=verde · Vigas=azul · Pilares=rojo", label);
         GUILayout.EndArea();
 
         if (ShowIds)
@@ -133,7 +138,8 @@ public class ViewControls : MonoBehaviour
             {
                 var view = viewGo.GetComponent<ElementView>();
                 if (view == null) continue;
-                Vector3 scr = Camera.main.WorldToScreenPoint(elementCenters[view.ElementTag]);
+                // centro visual vivo: ExplodedView mueve el GameObject completo
+                Vector3 scr = Camera.main.WorldToScreenPoint(viewGo.transform.position);
                 if (scr.z < 0) continue;
                 GUI.Label(new Rect(scr.x - 20, Screen.height - scr.y - 10, 40, 20),
                           view.ElementTag.ToString(), idLabel);
@@ -146,7 +152,7 @@ public class ViewControls : MonoBehaviour
             {
                 var view = modelBuilder.ElementObjects[i].GetComponent<ElementView>();
                 if (view == null) continue;
-                Vector3 center = elementCenters[view.ElementTag];
+                Vector3 center = modelBuilder.ElementObjects[i].transform.position;
                 Vector3 axis = elementAxis[view.ElementTag];
                 DrawAxis(center, axis, 1.5f);
             }
