@@ -64,6 +64,15 @@ def ntag(lev, xi, yj):
     return lev * 1_000_000 + xi * 1000 + yj
 
 
+def _node_at_level(node_map, lev, x, y):
+    """Devuelve el tag de un nodo del nivel `lev` ubicado en (x,y) (con tolerancia)."""
+    lid = LEVELS[lev]["id"]
+    for tid, n in node_map.items():
+        if n["level"] == lid and abs(n["x"] - x) < 0.01 and abs(n["y"] - y) < 0.01:
+            return tid
+    return None
+
+
 def _poly_area(poly):
     s = 0.0
     for k in range(len(poly)):
@@ -267,6 +276,94 @@ def main(out_path):
             bid = level_idx_e[e["level"]] - 1
             node_map[e["i"]] = {"tag": e["i"], "x": src["x"], "y": src["y"],
                                 "z": LEVELS[bid]["elevation"], "level": LEVELS[bid]["id"]}
+    model_nodes = [node_map[k] for k in sorted(node_map)]
+
+    # --- COLUMNAS: quitar diagonales (escaleras exteriores) y rellenar flotantes ---
+    # (a) Solo columnas estrictamente verticales (misma x, misma y entre i-j). Las
+    #     columnas diagonales corresponden a escaleras/rampas exteriores y se retiran.
+    kept = []
+    for e in elements:
+        if e["kind"] != "column":
+            kept.append(e)
+            continue
+        a, b = node_map[e["i"]], node_map[e["j"]]
+        if abs(a["x"] - b["x"]) > 0.01 or abs(a["y"] - b["y"]) > 0.01:
+            continue  # columna diagonal -> eliminar
+        kept.append(e)
+    elements = kept
+
+    # (b) Rellenar columnas flotantes: para cada posición (x,y) que tenga columna en
+    #     algún nivel, completar la cadena vertical continua desde S1 (o S2) hasta ese
+    #     nivel, creando las columnas intermedias que falten. Así ninguna columna queda
+    #     colgando en el aire; todas llegan a la base (S1/S2) como el resto.
+    level_idx_e = {l["id"]: k for k, l in enumerate(LEVELS)}
+    pos_tops = {}
+    for e in elements:
+        if e["kind"] != "column":
+            continue
+        a = node_map[e["i"]]
+        key = (round(a["x"], 1), round(a["y"], 1))
+        jlvl = level_idx_e[e["level"]]
+        if jlvl > pos_tops.get(key, -1):
+            pos_tops[key] = jlvl
+
+    last_tag = max(e["tag"] for e in elements)
+    next_node_tag = max(node_map) + 1
+    # coordenadas reales por posición (x,y) -> un punto representativo de esa columna
+    pos_xy = {}
+    for e in elements:
+        if e["kind"] != "column":
+            continue
+        a = node_map[e["i"]]
+        key = (round(a["x"], 1), round(a["y"], 1))
+        pos_xy.setdefault(key, (a["x"], a["y"]))
+    additions = []
+    for key, top in pos_tops.items():
+        real_x, real_y = pos_xy[key]
+        exist = set()
+        for e in elements:
+            if e["kind"] != "column":
+                continue
+            a = node_map[e["i"]]
+            if (round(a["x"], 1), round(a["y"], 1)) == key:
+                exist.add(level_idx_e[e["level"]])
+        for lev in range(1, top + 1):
+            if lev in exist:
+                continue
+            # localizar nodos existentes en esta posición para nivel lev y lev-1
+            jtag = _node_at_level(node_map, lev, real_x, real_y)
+            itag = _node_at_level(node_map, lev - 1, real_x, real_y)
+            # crear nodos faltantes con tag único y coordenadas reales
+            if jtag is None:
+                jtag = next_node_tag
+                next_node_tag += 1
+                node_map[jtag] = {"tag": jtag, "x": real_x, "y": real_y,
+                                  "z": LEVELS[lev]["elevation"],
+                                  "level": LEVELS[lev]["id"]}
+            if itag is None and lev - 1 >= 0:
+                itag = next_node_tag
+                next_node_tag += 1
+                node_map[itag] = {"tag": itag, "x": real_x, "y": real_y,
+                                  "z": LEVELS[lev - 1]["elevation"],
+                                  "level": LEVELS[lev - 1]["id"]}
+            if itag is None or jtag is None:
+                continue
+            sec = None
+            for e in elements:
+                if e["kind"] == "column" and \
+                   (round(node_map[e["i"]]["x"], 1),
+                    round(node_map[e["i"]]["y"], 1)) == key:
+                    sec = e["section"]
+                    break
+            if sec is None:
+                sec = "C40x40"
+            last_tag += 1
+            additions.append({"tag": last_tag, "kind": "column",
+                              "i": itag, "j": jtag, "section": sec,
+                              "level": LEVELS[lev]["id"],
+                              "local_x": [0.0, 0.0, 1.0]})
+            exist.add(lev)
+    elements.extend(additions)
     model_nodes = [node_map[k] for k in sorted(node_map)]
 
     # vigas implícitas de marco: en cada nivel, conectar nodos del MISMO nivel que
