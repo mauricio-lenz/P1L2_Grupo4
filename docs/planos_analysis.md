@@ -42,6 +42,10 @@ empalman sin transformación. Ver archivo_inventory.txt para catálogo completo.
 - **NO hay voladizos**: las losas no sobresalen de la retícula de columnas. Una medición
   previa contra `RLE-LOSA` sugirió voladizos en P2/P3 y azotea, pero al rectificar contra
   los planos resultaron **inexistentes**; se retiró la tabla `CANTILEVER` por completo.
+- Columnas: cada columna conecta el nivel `lev` con el **inmediatamente inferior**
+  (`lev-1`). Corregido un bug que conectaba contra el nivel base del plano (p. ej. S2→P1,
+  saltando S1). El nivel base S2 (lev 0) no genera columna propia: es la base de apoyos.
+  Resultado: columnas solo entre pisos adyacentes (0 saltos).
 - Vigas implícitas de marco: solo se conectan nodos del MISMO nivel que comparten una
   línea recta exacta (misma X o misma Y) y que son consecutivos (sin nodo intermedio),
   y únicamente si no hay viga/muro por evidencia. La agrupación es por coordenada real,

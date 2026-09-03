@@ -229,15 +229,18 @@ def main(out_path):
     elements = []
     tag = 1000
     for fidx, (fl, levs) in enumerate(floors):
-        base = PLANS[fidx][2]
         for lev in levs:
-            for (xi, yj) in sorted(fl["col_nodes"]):
-                b, h = fl["dims_for"]("col", (fl["xs"][xi], fl["ys"][yj]))
-                elements.append({"tag": tag, "kind": "column",
-                                 "i": ntag(base, xi, yj), "j": ntag(lev, xi, yj),
-                                 "section": sec_id("col", b, h), "level": LEVELS[lev]["id"],
-                                 "local_x": [0.0, 0.0, 1.0]})
-                tag += 1
+            # columnas: conectan el nivel `lev` con el nivel inmediatamente inferior
+            # (lev-1). El nivel base S2 (lev==0) no genera columna propia: es la base
+            # donde descansan las columnas de S1 y donde se ubican los apoyos.
+            if lev > 0:
+                for (xi, yj) in sorted(fl["col_nodes"]):
+                    b, h = fl["dims_for"]("col", (fl["xs"][xi], fl["ys"][yj]))
+                    elements.append({"tag": tag, "kind": "column",
+                                     "i": ntag(lev - 1, xi, yj), "j": ntag(lev, xi, yj),
+                                     "section": sec_id("col", b, h), "level": LEVELS[lev]["id"],
+                                     "local_x": [0.0, 0.0, 1.0]})
+                    tag += 1
             for (kind, x0, y0, x1, y1) in fl["spans"]:
                 xm = 0.5 * (fl["node_xy"][(x0, y0)][0] + fl["node_xy"][(x1, y1)][0])
                 ym = 0.5 * (fl["node_xy"][(x0, y0)][1] + fl["node_xy"][(x1, y1)][1])
