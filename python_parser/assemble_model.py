@@ -330,10 +330,8 @@ def main(out_path):
         for lev in range(1, top + 1):
             if lev in exist:
                 continue
-            # localizar nodos existentes en esta posición para nivel lev y lev-1
             jtag = _node_at_level(node_map, lev, real_x, real_y)
             itag = _node_at_level(node_map, lev - 1, real_x, real_y)
-            # crear nodos faltantes con tag único y coordenadas reales
             if jtag is None:
                 jtag = next_node_tag
                 next_node_tag += 1
@@ -364,6 +362,84 @@ def main(out_path):
                               "local_x": [0.0, 0.0, 1.0]})
             exist.add(lev)
     elements.extend(additions)
+
+    # --- (c) Columnas de soporte bajo todo nodo de viga que no tenga columna ---
+    # Para que ninguna viga quede "flotando" en la visualización, se crea una columna
+    # vertical continua (desde la base S2 hasta el nivel más alto de viga) en cada
+    # posición (x,y) donde haya nodos de viga pero todavía NO exista columna.
+    beam_pos = {}
+    for e in elements:
+        if e["kind"] not in ("beam", "girder", "wall"):
+            continue
+        for t in (e["i"], e["j"]):
+            n = node_map[t]
+            key = (round(n["x"], 1), round(n["y"], 1))
+            lv = level_idx_e[n["level"]]
+            if lv > beam_pos.get(key, -1):
+                beam_pos[key] = lv
+            else:
+                beam_pos.setdefault(key, -1)
+
+    def _pos_has_col(key):
+        for e in elements:
+            if e["kind"] != "column":
+                continue
+            a = node_map[e["i"]]
+            if (round(a["x"], 1), round(a["y"], 1)) == key:
+                return True
+        return False
+
+    for key, beam_top in beam_pos.items():
+        if beam_top < 0 or _pos_has_col(key):
+            continue  # sin vigas o ya hay columna en la posición
+        # coord real representativa: tomarla de un nodo de viga de la posición
+        rx, ry = None, None
+        for e in elements:
+            if e["kind"] not in ("beam", "girder", "wall"):
+                continue
+            for t in (e["i"], e["j"]):
+                n = node_map[t]
+                if (round(n["x"], 1), round(n["y"], 1)) == key:
+                    rx, ry = n["x"], n["y"]
+                    break
+            if rx is not None:
+                break
+        if rx is None:
+            continue
+        for lev in range(1, beam_top + 1):
+            # si ya existe una columna en este nivel para la posición, saltar
+            dup = False
+            for e in elements:
+                if e["kind"] != "column":
+                    continue
+                a = node_map[e["i"]]
+                if (round(a["x"], 1), round(a["y"], 1)) == key and \
+                   level_idx_e[e["level"]] == lev:
+                    dup = True
+                    break
+            if dup:
+                continue
+            jtag = _node_at_level(node_map, lev, rx, ry)
+            itag = _node_at_level(node_map, lev - 1, rx, ry)
+            if jtag is None:
+                jtag = next_node_tag
+                next_node_tag += 1
+                node_map[jtag] = {"tag": jtag, "x": rx, "y": ry,
+                                  "z": LEVELS[lev]["elevation"],
+                                  "level": LEVELS[lev]["id"]}
+            if itag is None and lev - 1 >= 0:
+                itag = next_node_tag
+                next_node_tag += 1
+                node_map[itag] = {"tag": itag, "x": rx, "y": ry,
+                                  "z": LEVELS[lev - 1]["elevation"],
+                                  "level": LEVELS[lev - 1]["id"]}
+            if itag is None or jtag is None:
+                continue
+            last_tag += 1
+            elements.append({"tag": last_tag, "kind": "column",
+                             "i": itag, "j": jtag, "section": "C40x40",
+                             "level": LEVELS[lev]["id"],
+                             "local_x": [0.0, 0.0, 1.0]})
     model_nodes = [node_map[k] for k in sorted(node_map)]
 
     # vigas implícitas de marco: en cada nivel, conectar nodos del MISMO nivel que
