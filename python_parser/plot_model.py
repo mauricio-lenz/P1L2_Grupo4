@@ -106,12 +106,13 @@ def main():
     out = os.path.join(os.path.dirname(__file__), "..", "output")
     os.makedirs(out, exist_ok=True)
 
-    # (archivo, elev, azim, descripción) — 4 ángulos: el general + 3 presets distintos
+    # (archivo, elev, azim, descripción) — 4 ángulos con elevaciones altas y giros
+    # abiertos para reducir el solapamiento de las líneas y ver la separación de pisos.
     VIEWS = [
-        ("model_plot.png",                30, -60, "isometrica general"),
-        ("model_plot_preset1_iso.png",    35,  45, "isometrica frontal-derecha"),
-        ("model_plot_preset2_perfil.png", 10,  90, "perfil lateral (elev baja)"),
-        ("model_plot_preset3_cenital.png", 65, 210, "cenital opuesta"),
+        ("model_plot.png",                50, -60, "isometrica general"),
+        ("model_plot_preset1_iso.png",    50,  45, "isometrica frontal-derecha"),
+        ("model_plot_preset2_perfil.png", 55,  90, "perfil lateral (elev alta)"),
+        ("model_plot_preset3_cenital.png", 70, 210, "cenital opuesta"),
     ]
 
     for fname, elev, azim, desc in VIEWS:
