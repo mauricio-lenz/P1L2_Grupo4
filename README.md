@@ -62,7 +62,9 @@ batch con `SceneWizard.BuildMain` (`Assets/Editor/SceneWizard.cs`).
 ## Demo sugerida (evalua en vivo)
 Guía completa con respuestas modelo: **`docs/guia_demo_grupo4.md`**.
 1. Abrir `Assets/Scenes/Main.unity` → Play: se ve el edificio en **vista explotada**
-   axonométrica (losas verde claro, vigas azules, pilares rojos, base de subterráneos marrón).
+   axonométrica (losas verde claro, vigas azules, pilares rojos, base de subterráneos marrón),
+   con los **voladizos de losa** de los pisos superiores (P2/P3 y azotea sobresalen en el
+   lateral y el fondo).
 2. `X` para alternar entre vista ensamblada y explotada.
 3. Probar toggles `B/C/W/S/T/D` para aislar un tipo de elemento.
 4. `I` para ver los `elementTag` de cada barra; `L` para su eje local.

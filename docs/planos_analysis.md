@@ -39,6 +39,13 @@ empalman sin transformación. Ver archivo_inventory.txt para catálogo completo.
 ## Decisiones de modelado
 - Losas NO se modelan con FE; se transfieren por áreas tributarias (triángulo por paño,
   igual geometría para G y Q) — regla ya codificada y verificada en la fase 1.
+- **Voladizos de losa**: la losa real (extractada de `RLE-LOSA`) sobresale de la retícula
+  de columnas en los niveles superiores. Medido contra la última columna de soporte:
+  - P2/P3: voladizo lateral derecho ≈ 2.45 m y de fondo ≈ 0.94 m (área 2828 → 3016 m²).
+  - Azotea: voladizo lateral derecho ≈ 1.13 m y de fondo ≈ 1.00 m (área 1016 → 1090 m²).
+  Se añaden nodos de borde, vigas de voladizo (desde la última columna) y viga de
+  continuidad del borde; los paños de voladizo descargan en esas vigas (tabla
+  `CANTILEVER` en `assemble_model.py`). Verificado: 5 checks OK tras regenerar.
 - Vigas implícitas de marco: si dos nodos consecutivos (columna/extremo) de una misma fila o
   columna de la retícula no tienen viga/muro por evidencia escrita, se asume viga (convención
   de pórtico de hormigón). Necesario porque la evidencia escrita es escasa en -102

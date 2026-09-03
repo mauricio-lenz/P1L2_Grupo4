@@ -51,6 +51,16 @@ PLANS = [
     ("cad_files/dxf/2017_67/2017_67-103.dxf", [5], 2),        # Azotea (techo sobre P3)
 ]
 
+# VOLADIZOS de losa por nivel (m extendidos mas alla de la retícula de columnas).
+# Medidos comparando la huella real de losa (RLE-LOSA, docs/planos_analysis.md) contra
+# la ultima columna de soporte de cada lado. Solo los niveles superiores presentan
+# voladizo lateral (derecho) y de fondo.
+CANTILEVER = {
+    "P2": {"xmax": 2.45, "ymax": 0.94},
+    "P3": {"xmax": 2.45, "ymax": 0.94},
+    "A":  {"xmax": 1.13, "ymax": 1.00},
+}
+
 P_COL = re.compile(r"(\d+)\s*[xX]\s*(\d+)")
 P_BEAM = re.compile(r"(\d+)\s*/\s*(\d+)")
 P_WALL = re.compile(r"e\s*=\s*(\d+)")
@@ -173,6 +183,55 @@ def build_floor(path, lev):
                 spans.append(("beam", xi, yj, xi, yj + 1))
             if evw:
                 spans.append(("wall", xi, yj, xi, yj + 1))
+
+    # ===== VOLADIZOS de losa en niveles superiores =====
+    # La losa sobresale de la retícula de columnas en el lateral derecho (xmax) y el
+    # fondo (ymax). Se añaden nodos de borde, vigas de voladizo desde la última
+    # columna de soporte y la viga de continuidad del nuevo borde. Las áreas
+    # tributarias se generan después sobre la retícula ampliada (incluye los paños
+    # del voladizo), y la losa usa [min,max] de xs/ys, así que el voladizo queda
+    # cubierto sin tocar la estructur a interior.
+    level_id = LEVELS[lev]["id"]
+    cv = CANTILEVER.get(level_id)
+    if cv:
+        # --- voladizo lateral derecho (xmax): extiende xs ---
+        if cv.get("xmax"):
+            xnew = xs[-1] + cv["xmax"]
+            xs.append(xnew)
+            xi_new = len(xs) - 1
+            edge_rows = {}
+            for yj in range(len(ys)):
+                cols_row = [kx for (kx, ky) in col_nodes if ky == yj]
+                if not cols_row:
+                    continue
+                edge_rows[yj] = max(cols_row)
+            for yj, xi_col in edge_rows.items():
+                spans.append(("beam", xi_col, yj, xi_new, yj))
+                end_nodes.add((xi_new, yj))
+            er = sorted(edge_rows)
+            for a, b in zip(er, er[1:]):
+                spans.append(("beam", xi_new, a, xi_new, b))
+                end_nodes.add((xi_new, a))
+                end_nodes.add((xi_new, b))
+        # --- voladizo de fondo (ymax): extiende ys ---
+        if cv.get("ymax"):
+            ynew = ys[-1] + cv["ymax"]
+            ys.append(ynew)
+            yj_new = len(ys) - 1
+            edge_cols = {}
+            for xi in range(len(xs)):
+                cols_col = [ky for (kx, ky) in col_nodes if kx == xi]
+                if not cols_col:
+                    continue
+                edge_cols[xi] = max(cols_col)
+            for xi, yj_col in edge_cols.items():
+                spans.append(("beam", xi, yj_col, xi, yj_new))
+                end_nodes.add((xi, yj_new))
+            ec = sorted(edge_cols)
+            for a, b in zip(ec, ec[1:]):
+                spans.append(("beam", a, yj_new, b, yj_new))
+                end_nodes.add((a, yj_new))
+                end_nodes.add((b, yj_new))
 
     used = set(col_nodes)
     for (k, x0, y0, x1, y1) in spans:
