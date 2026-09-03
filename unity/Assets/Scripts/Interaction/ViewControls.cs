@@ -3,6 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// Controles en vivo del viewer (Leyenda + teclas):
+///   1/2/3   -> ángulos de cámara preset (isométrica / perfil / cenital)
+///   X       -> alternar vista explotada
 ///   T       -> alternar nodos
 ///   B       -> alternar vigas
 ///   C       -> alternar columnas
@@ -105,6 +107,12 @@ public class ViewControls : MonoBehaviour
         {
             explodedView.SetExplodedView(explodedView.CurrentAmount < 0.5f);
         }
+        if (explodedView != null)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1)) explodedView.SetCameraPreset(0);
+            if (Input.GetKeyDown(KeyCode.Alpha2)) explodedView.SetCameraPreset(1);
+            if (Input.GetKeyDown(KeyCode.Alpha3)) explodedView.SetCameraPreset(2);
+        }
     }
 
     private void OnGUI()
@@ -114,8 +122,9 @@ public class ViewControls : MonoBehaviour
         label.alignment = TextAnchor.MiddleLeft;
         box.normal.background = MakeTex(2, 2, new Color(0.05f, 0.06f, 0.10f, 0.75f));
 
-        GUILayout.BeginArea(new Rect(12, 12, 300, 235), box);
+        GUILayout.BeginArea(new Rect(12, 12, 300, 280), box);
         GUILayout.Label("CONTROLES (vivo)", label);
+        GUILayout.Label("1  isométrica    2  perfil    3  cenital", label);
         GUILayout.Label("X  vista explotada [ON/OFF]", label);
         GUILayout.Label("T  nodos      [ON/OFF]", label);
         GUILayout.Label("B  vigas      [ON/OFF]", label);

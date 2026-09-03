@@ -4,14 +4,15 @@ using UnityEngine;
 /// <summary>
 /// Vista axonométrica explotada del edificio (maqueta estructural técnica).
 ///
-/// - Cámara ortográfica en ángulo isométrico (fachada frontal + lateral), que se
-///   re-encuadra automáticamente al total del modelo (también en modo explotado).
+/// - Cámara ortográfica con 3 presets de ángulo (teclas 1/2/3 en ViewControls):
+///     1) Isométrica frontal-derecha (elev 35°, azimut 45°) — vista general
+///     2) Perfil lateral baja    (elev 10°, azimut  0°) — separación vertical de pisos
+///     3) Cenital opuesta        (elev 70°, azimut 225°) — se ven las plantas desde arriba
 /// - Cada piso se desplaza verticalmente (UNICAMENTE en Y) según su índice de
 ///   nivel:  Y = Y_original + floorIndex * explodedOffset * amount.
 ///   La geometría en planta (X, Z) nunca cambia.
-/// - SetExplodedView(bool enabled) y SetExplodedView(float amount) con transición
-///   suave (SmoothStep). amount 0 = ensamblado, 1 = totalmente explotado.
-/// - Al volver a amount 0 todo regresa exactamente a su posición original.
+/// - SetExplodedView(bool) / SetExplodedView(float) con transición suave.
+/// - SetCameraPreset(int) aplica un preset y re-encuadra.
 ///
 /// No modifica la geometría estructural: solo desplaza la posición visual de los
 /// GameObjects ya construidos por ModelBuilder.
@@ -38,6 +39,31 @@ public class ExplodedView : MonoBehaviour
 
     [Tooltip("Ángulo de giro horizontal (res ) de la cámara.")]
     [SerializeField] private float cameraAzimuth = 45f;
+
+    // --- presets de cámara ---------------------------------------------------
+    private struct CamPreset
+    {
+        public readonly string Name;
+        public readonly float Elevation;
+        public readonly float Azimuth;
+        public CamPreset(string name, float elevation, float azimuth)
+        { Name = name; Elevation = elevation; Azimuth = azimuth; }
+    }
+
+    private static readonly CamPreset[] Presets = new CamPreset[]
+    {
+        new CamPreset("Isométrica frontal-derecha", 35f,  45f),
+        new CamPreset("Perfil lateral baja",        10f,   0f),
+        new CamPreset("Cenital opuesta",            70f, 225f),
+    };
+
+    private int currentPreset = 0;
+
+    /// <summary>Nombre del preset activo (para la leyenda GUI).</summary>
+    public string CurrentPresetName => Presets[currentPreset].Name;
+
+    /// <summary>Índice del preset activo (0..2).</summary>
+    public int CurrentPresetIndex => currentPreset;
 
     // --- data de la configuracion original ------------------------------
     [SerializeField] private ModelBuilder modelBuilder;
@@ -103,6 +129,25 @@ public class ExplodedView : MonoBehaviour
     }
 
     public float CurrentAmount => amount;
+
+    /// <summary>
+    /// Aplica un preset de cámara por índice (0, 1, 2) y re-encuadra.
+    /// Si idx es inválido, no hace nada.
+    /// </summary>
+    public void SetCameraPreset(int idx)
+    {
+        if (idx < 0 || idx >= Presets.Length) return;
+        currentPreset = idx;
+        cameraElevation = Presets[idx].Elevation;
+        cameraAzimuth = Presets[idx].Azimuth;
+        needsFrame = true;
+    }
+
+    /// <summary>Cicla al siguiente preset (0→1→2→0).</summary>
+    public void CycleCameraPreset()
+    {
+        SetCameraPreset((currentPreset + 1) % Presets.Length);
+    }
 
     private void BuildLevelIndex()
     {
