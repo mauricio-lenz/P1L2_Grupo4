@@ -18,15 +18,7 @@ LEVEL_COLOR = {"S2": "#b08968", "S1": "#c19a6b", "P1": "#9fb8d9",
                "P2": "#a3c9a5", "P3": "#e0c287", "A": "#d4a6c3"}
 
 
-def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
-        os.path.dirname(__file__), "..", "data", "model_data.json")
-    with open(path, encoding="utf-8") as f:
-        model = json.load(f)
-
-    out = os.path.join(os.path.dirname(__file__), "..", "output")
-    os.makedirs(out, exist_ok=True)
-
+def _build_figure(model):
     nodes = {n["tag"]: n for n in model["nodes"]}
 
     fig = plt.figure(figsize=(14, 9), dpi=120)
@@ -57,8 +49,6 @@ def main():
             below = [l["elevation"] for l in model["levels"] if l["elevation"] < z]
             z0 = min(below) if below else min(l["elevation"] for l in model["levels"]) - 1.0
             poly = s["polygon"]
-            xs_p = [p[0] for p in poly] + [poly[0][0]]
-            ys_p = [p[1] for p in poly] + [poly[0][1]]
             walls = []
             for k in range(len(poly)):
                 a = poly[k]
@@ -96,19 +86,43 @@ def main():
     zmin = min([l["elevation"] for l in model["levels"]]) - 1.0
     ax.set_zlim(zmin, max(zs) + pad)
     ax.set_box_aspect([max(xs) - min(xs), max(ys) - min(ys), max(zs) - zmin])
-    ax.view_init(elev=30, azim=-60)
 
     from matplotlib.lines import Line2D
     legend = [Line2D([0], [0], color=c, lw=2, label=k) for k, c in KIND_COLOR.items() if k != "wall"]
     legend += [Line2D([0], [0], color=LEVEL_COLOR[l], lw=8, alpha=0.6, label=f"Losa {l}")
                for l in ["S2", "S1", "P1", "P2", "P3", "A"]]
-    ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="#1e293b", edgecolor="#475569", labelcolor="white")
+    ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="#1e293b",
+              edgecolor="#475569", labelcolor="white")
 
-    path_out = os.path.join(out, "model_plot.png")
-    plt.tight_layout()
-    fig.savefig(path_out, facecolor=fig.get_facecolor())
-    plt.close(fig)
-    print(path_out)
+    return fig, ax
+
+
+def main():
+    path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
+        os.path.dirname(__file__), "..", "data", "model_data.json")
+    with open(path, encoding="utf-8") as f:
+        model = json.load(f)
+
+    out = os.path.join(os.path.dirname(__file__), "..", "output")
+    os.makedirs(out, exist_ok=True)
+
+    # (archivo, elev, azim, descripción) — 4 ángulos: el general + 3 presets distintos
+    VIEWS = [
+        ("model_plot.png",                30, -60, "isometrica general"),
+        ("model_plot_preset1_iso.png",    35,  45, "isometrica frontal-derecha"),
+        ("model_plot_preset2_perfil.png", 10,  90, "perfil lateral (elev baja)"),
+        ("model_plot_preset3_cenital.png", 65, 210, "cenital opuesta"),
+    ]
+
+    for fname, elev, azim, desc in VIEWS:
+        fig, ax = _build_figure(model)
+        ax.view_init(elev=elev, azim=azim)
+        ax.set_title(desc, color="white", fontsize=10)
+        path_out = os.path.join(out, fname)
+        plt.tight_layout()
+        fig.savefig(path_out, facecolor=fig.get_facecolor())
+        plt.close(fig)
+        print(path_out)
 
 
 if __name__ == "__main__":
