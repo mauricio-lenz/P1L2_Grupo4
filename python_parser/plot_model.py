@@ -8,8 +8,8 @@ from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
-# Colores apagados (poca saturacion) para no cansar la vista.
-KIND_COLOR = {"column": "#8899bb", "beam": "#cfd8a0", "wall": "#b49ad0"}
+# Colores con buen contraste sobre fondo blanco.
+KIND_COLOR = {"column": "#5b7dab", "beam": "#9aa84f", "wall": "#8a5fb8"}
 KIND_WIDTH = {"column": 2.2, "beam": 1.0, "wall": 1.5}
 SLAB_ALPHA = 0.30
 # Subterraneos se dibujan como masa solida (base), niveles superiores como losas.
@@ -23,8 +23,8 @@ def _build_figure(model):
 
     fig = plt.figure(figsize=(14, 9), dpi=120)
     ax = fig.add_subplot(111, projection="3d")
-    ax.set_facecolor("#0f172a")
-    fig.patch.set_facecolor("#0f172a")
+    ax.set_facecolor("white")
+    fig.patch.set_facecolor("white")
 
     for e in model["elements"]:
         if e["kind"] == "wall":
@@ -66,19 +66,19 @@ def _build_figure(model):
                                     edgecolor=col, linewidths=0.5)
             ax.add_collection3d(poly)
 
-    ax.set_xlabel("X (m)", color="white", fontsize=9)
-    ax.set_ylabel("Y (m)", color="white", fontsize=9)
-    ax.set_zlabel("Z (m)", color="white", fontsize=9)
-    ax.tick_params(colors="white", labelsize=7)
+    ax.set_xlabel("X (m)", color="black", fontsize=9)
+    ax.set_ylabel("Y (m)", color="black", fontsize=9)
+    ax.set_zlabel("Z (m)", color="black", fontsize=9)
+    ax.tick_params(colors="black", labelsize=7)
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
-    ax.xaxis.pane.set_edgecolor("#334155")
-    ax.yaxis.pane.set_edgecolor("#334155")
-    ax.zaxis.pane.set_edgecolor("#334155")
+    ax.xaxis.pane.set_edgecolor("#b0b0b0")
+    ax.yaxis.pane.set_edgecolor("#b0b0b0")
+    ax.zaxis.pane.set_edgecolor("#b0b0b0")
 
     for spine in ax.spines.values():
-        spine.set_color("#334155")
+        spine.set_color("#b0b0b0")
 
     pad = 2
     ax.set_xlim(min(xs) - pad, max(xs) + pad)
@@ -91,8 +91,8 @@ def _build_figure(model):
     legend = [Line2D([0], [0], color=c, lw=2, label=k) for k, c in KIND_COLOR.items() if k != "wall"]
     legend += [Line2D([0], [0], color=LEVEL_COLOR[l], lw=8, alpha=0.6, label=f"Losa {l}")
                for l in ["S2", "S1", "P1", "P2", "P3", "A"]]
-    ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="#1e293b",
-              edgecolor="#475569", labelcolor="white")
+    ax.legend(handles=legend, loc="upper left", fontsize=8, facecolor="white",
+              edgecolor="#c0c0c0", labelcolor="black")
 
     return fig, ax
 
